@@ -1,26 +1,86 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f7f1e8;
+  --foreground: #2a211c;
+  color-scheme: only light;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-ivory: #f7f1e8;
+  --color-paper: #fffdf8;
+  --color-ink: #2a211c;
+  --color-wine: #8d3040;
+  --color-wine-deep: #6d2432;
+  --color-saffron: #e0a03a;
+  --color-leaf: #1d4a38;
+  --color-blush: #f6ddd4;
+  --color-ice: #d9e6f2;
+  --color-sand: #efe0c4;
+  --color-mint: #e4efe6;
+  --color-wheat: #f6e4c4;
+  --font-sans: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
+  background: #f7f1e8;
+  color-scheme: only light;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: #f7f1e8;
+  color: #2a211c;
+}
+
+a[href],
+button:not(:disabled),
+select,
+[role="button"]:not([aria-disabled="true"]),
+[role="link"],
+[role="option"],
+[role="tab"],
+summary {
+  cursor: pointer;
+}
+
+button:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+::selection {
+  background: #7a2430;
+  color: #fffaf3;
+}
+
+:focus-visible {
+  outline: 2px solid #e0a03a;
+  outline-offset: 3px;
+}
+
+@keyframes ticker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.ticker-track {
+  animation: ticker 36s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .ticker-track {
+    animation: none;
+  }
 }

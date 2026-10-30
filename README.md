@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Malabar Starts Food Stuff
 
-## Getting Started
+Storefront and admin for Malabar Starts Food Stuff, a food supply house in Sharjah. Customers browse products, brands, and categories, then sign in to manage a cart, checkout, orders, payments, wishlist, and addresses. Staff use the admin area for catalog, orders, payments, customers, coupons, and reviews.
 
-First, run the development server:
+The UI is a Next.js app. Product, order, and account data come from a separate API.
+
+## Requirements
+
+- Node.js 20 or newer
+- npm
+- The Malabar API running locally, or a deployed API URL
+
+## Setup
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Create `.env.local` before the first run. See [Environment](#environment).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Open [http://localhost:3000](http://localhost:3000).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Environment
 
-## Learn More
+Create `.env.local` in the project root. It is listed in `.gitignore` and must not be committed.
 
-To learn more about Next.js, take a look at the following resources:
+| Variable | Required | Description |
+| --- | --- | --- |
+| `NEXT_PUBLIC_API_URL` | Yes in production | Base URL of the API, with no trailing path. Example: `http://localhost:4000` |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+NEXT_PUBLIC_API_URL=http://localhost:4000
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+If the variable is missing, requests fall back to `http://localhost:4000`.
 
-## Deploy on Vercel
+`NEXT_PUBLIC_` values are copied into the browser bundle when the app is built. Set `NEXT_PUBLIC_API_URL` in the host’s environment **before** `npm run build`. Changing it after the build does not update an already built app. `.env.local` is for local development only and is not used on the production host.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Scripts
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | Start the dev server |
+| `npm run build` | Production build |
+| `npm run start` | Serve the production build |
+| `npm run lint` | Run ESLint |
+
+## Routes
+
+- `/` — landing page
+- `/products`, `/categories`, `/brands` — public catalog
+- `/login`, `/signup`, `/verify-otp`, `/forgot-password` — account access
+- `/cart`, `/checkout`, `/orders`, `/payments`, `/wishlist`, `/profile`, `/addresses` — signed-in customers
+- `/admin` — staff

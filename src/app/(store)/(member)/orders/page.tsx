@@ -1,0 +1,12 @@
+import type { Metadata } from "next";
+import { OrdersView } from "@/components/shop/orders-view";
+
+export const instant = false;
+
+export const metadata: Metadata = {
+  title: "Orders",
+};
+
+export default function OrdersPage() {
+  return <OrdersView />;
+}
