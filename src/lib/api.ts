@@ -3,9 +3,10 @@ import { clearToken, readToken, TOKEN_KEY } from "@/lib/authSession";
 import type { ApiErrorBody } from "@/types/apiError";
 
 // const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "/api/backend";
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "/api/backend";
+// const API_BASE = process.env.NEXT_PUBLIC_API_URL || "/api/backend";
 
-// const API_BASE = "/api/backend";
+const API_BASE = "/api/backend";
+const base = await getApiBase();
 
 const sessionEndingCodes = new Set([
   "TOKEN_NOT_FOUND",
@@ -39,7 +40,7 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
 
   let response: Response;
   try {
-    response = await fetch(`${API_BASE}${path}`, {
+    response = await fetch(`${base}${path}`, {
       ...init,
       headers,
       cache: "no-store",
@@ -66,4 +67,27 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
 
   if (response.status === 204) return undefined as T;
   return (await response.json()) as T;
+}
+
+
+
+
+async function getApiBase() {
+  if (typeof window !== "undefined") {
+    return API_BASE;
+  }
+
+  const { headers } = await import("next/headers");
+  const requestHeaders = await headers();
+
+  const host = requestHeaders.get("x-forwarded-host")
+    ?? requestHeaders.get("host");
+
+  const protocol = requestHeaders.get("x-forwarded-proto") ?? "https";
+
+  if (!host) {
+    throw new Error("Unable to determine request host");
+  }
+
+  return `${protocol}://${host}${API_BASE}`;
 }
