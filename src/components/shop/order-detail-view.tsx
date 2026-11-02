@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useServerSeed } from "@/hooks/useServerSeed";
 import { CancelOrderDialog } from "@/components/shop/cancel-order-dialog";
 import { NoteEditor, OrderDeliveryEditor } from "@/components/shop/order-editors";
 import { OrderItemReview } from "@/components/shop/order-review";
@@ -18,15 +19,30 @@ import { canEditOrder, canReviewOrder, cancelOrderStatus, customerCanCancel } fr
 import type { Address } from "@/types/address";
 import type { OrderItemReview as ItemReview, OrderRecord } from "@/types/order";
 
-export function OrderDetailView({ id }: { id: string }) {
-  const [order, setOrder] = useState<OrderRecord | null>(null);
-  const [addresses, setAddresses] = useState<Address[]>([]);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+export function OrderDetailView({
+  id,
+  initialOrder = null,
+  initialError = "",
+  initialAddresses,
+}: {
+  id: string;
+  initialOrder?: OrderRecord | null;
+  initialError?: string;
+  initialAddresses?: Address[];
+}) {
+  const seeded = initialOrder !== null && !initialError;
+  const consumeSeed = useServerSeed(seeded);
+  const addressSeeded = initialAddresses !== undefined;
+  const consumeAddressSeed = useServerSeed(addressSeeded);
+  const [order, setOrder] = useState<OrderRecord | null>(seeded ? initialOrder : null);
+  const [addresses, setAddresses] = useState<Address[]>(initialAddresses ?? []);
+  const [error, setError] = useState(seeded ? "" : "");
+  const [loading, setLoading] = useState(!seeded);
   const [busy, setBusy] = useState(false);
   const [cancelOpen, setCancelOpen] = useState(false);
 
   useEffect(() => {
+    if (consumeSeed()) return;
     let active = true;
     setLoading(true);
     getOrder(id)
@@ -52,6 +68,7 @@ export function OrderDetailView({ id }: { id: string }) {
 
   useEffect(() => {
     if (!editable) return;
+    if (consumeAddressSeed()) return;
     let active = true;
     listAddresses({ limit: 50, sort: "newest" })
       .then((result) => {
@@ -92,7 +109,11 @@ export function OrderDetailView({ id }: { id: string }) {
   }
 
   return (
-    <PageFrame eyebrow="Order" title={order?.orderNumber ?? "Order"}>
+    <PageFrame
+      eyebrow="Order"
+      title={order?.orderNumber ?? "Order"}
+      lede={order ? formatOrderWhen(order.createdAt) : undefined}
+    >
       <Link href={routes.orders} className="text-sm text-wine">
         All orders
       </Link>
@@ -100,11 +121,9 @@ export function OrderDetailView({ id }: { id: string }) {
       {error ? <p className="mt-6 rounded-2xl bg-blush px-4 py-3 text-sm text-wine">{error}</p> : null}
       {order ? (
         <div className="mt-4">
-          <div className="mb-6 flex flex-wrap items-center gap-3">
-            <h1 className="font-display text-4xl tracking-tight">{order.orderNumber}</h1>
+          <div className="mb-6">
             <StatusBadge status={order.status} />
           </div>
-          <p className="mb-6 text-sm text-ink/55">{formatOrderWhen(order.createdAt)}</p>
           <OrderPanel
             order={order}
             showNote={!editable}

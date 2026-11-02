@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useServerSeed } from "@/hooks/useServerSeed";
 import { ChoiceGroup, FilterLabel, controlClass } from "@/components/shop/filter-controls";
 import { ProductMedia } from "@/components/shop/product-card";
 import { StarRating } from "@/components/shop/star-rating";
@@ -20,20 +21,28 @@ export function ReviewsAdmin({
   userId,
   productId,
   embedded = false,
+  initialReviews,
+  initialPagination = null,
+  initialError = "",
 }: {
   userId?: string;
   productId?: string;
   embedded?: boolean;
+  initialReviews?: ReviewRecord[];
+  initialPagination?: Pagination | null;
+  initialError?: string;
 }) {
   const { confirm, dialog } = useConfirm();
-  const [reviews, setReviews] = useState<ReviewRecord[]>([]);
-  const [pagination, setPagination] = useState<Pagination | null>(null);
+  const seeded = initialReviews !== undefined && !initialError;
+  const consumeSeed = useServerSeed(seeded);
+  const [reviews, setReviews] = useState<ReviewRecord[]>(initialReviews ?? []);
+  const [pagination, setPagination] = useState<Pagination | null>(seeded ? initialPagination : null);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [appliedSearch, setAppliedSearch] = useState("");
   const [visibility, setVisibility] = useState<Visibility>("all");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!seeded);
   const [version, setVersion] = useState(0);
 
   useEffect(() => {
@@ -47,6 +56,7 @@ export function ReviewsAdmin({
   }, [search, appliedSearch]);
 
   useEffect(() => {
+    if (consumeSeed()) return;
     let active = true;
     setLoading(true);
     listReviews({
@@ -130,7 +140,7 @@ export function ReviewsAdmin({
   return (
     <div className={embedded ? "mt-5 border-t border-ink/10 pt-4" : ""}>
       <div className="flex flex-wrap items-center justify-between gap-3">
-        {embedded ? <h4 className="font-display text-2xl tracking-tight">Reviews</h4> : null}
+        {embedded ? <h4 className="page-title">Reviews</h4> : null}
         {pagination ? <p className="text-sm text-ink/55">{pagination.total} reviews</p> : null}
       </div>
       <div className="mt-4 grid items-end gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
@@ -188,7 +198,7 @@ export function ReviewsAdmin({
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <Link href={`/admin/products/${review.product.id}`} className="block font-display text-2xl tracking-tight hover:text-wine">
+                      <Link href={`/admin/products/${review.product.id}`} className="block text-base font-medium leading-snug hover:text-wine">
                         {review.product.name ?? "Product"}
                       </Link>
                       <div className="mt-2 flex flex-wrap items-center gap-2">

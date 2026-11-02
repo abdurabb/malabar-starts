@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useServerSeed } from "@/hooks/useServerSeed";
 import { PageFrame } from "@/components/shop/page-frame";
 import { ProductCard } from "@/components/shop/product-card";
 import { controlClass } from "@/components/shop/filter-controls";
@@ -14,15 +15,25 @@ import type { WishlistItem } from "@/types/wishlist";
 
 const limit = 12;
 
-export function WishlistView() {
+export function WishlistView({
+  initialItems = [],
+  initialPagination = null,
+  initialError = "",
+}: {
+  initialItems?: WishlistItem[];
+  initialPagination?: Pagination | null;
+  initialError?: string;
+}) {
   const revision = useAppSelector((state) => state.shop.wishlistRevision);
+  const seeded = initialPagination !== null && !initialError;
+  const consumeSeed = useServerSeed(seeded);
   const [search, setSearch] = useState("");
   const [appliedSearch, setAppliedSearch] = useState("");
   const [page, setPage] = useState(1);
-  const [items, setItems] = useState<WishlistItem[]>([]);
-  const [pagination, setPagination] = useState<Pagination | null>(null);
+  const [items, setItems] = useState<WishlistItem[]>(seeded ? initialItems : []);
+  const [pagination, setPagination] = useState<Pagination | null>(seeded ? initialPagination : null);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!seeded);
 
   useEffect(() => {
     const next = search.trim();
@@ -35,6 +46,7 @@ export function WishlistView() {
   }, [search, appliedSearch]);
 
   useEffect(() => {
+    if (consumeSeed()) return;
     let active = true;
     setLoading(true);
     listWishlist({ page, limit, search: appliedSearch || undefined })
@@ -86,7 +98,7 @@ export function WishlistView() {
       {loading ? <p className="text-sm text-ink/60">Loading saved products…</p> : null}
       {!loading && !error && items.length === 0 ? (
         <div className="rounded-[1.5rem] border border-ink/10 bg-paper p-8">
-          <p className="font-display text-3xl">{appliedSearch ? "Nothing matches that search." : "Nothing saved yet."}</p>
+          <p className="text-base leading-7 text-ink/70">{appliedSearch ? "Nothing matches that search." : "Nothing saved yet."}</p>
           {appliedSearch ? null : (
             <Link href={routes.products} className="mt-4 inline-flex text-wine">
               Browse products

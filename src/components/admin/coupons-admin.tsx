@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useServerSeed } from "@/hooks/useServerSeed";
 import { CouponFormDialog } from "@/components/admin/coupon-form-dialog";
 import { useConfirm } from "@/components/ui/confirm-dialog";
 import { ChoiceGroup, controlClass } from "@/components/shop/filter-controls";
@@ -29,10 +30,20 @@ function timing(coupon: Coupon) {
   return "";
 }
 
-export function CouponsAdmin() {
+export function CouponsAdmin({
+  initialCoupons = [],
+  initialPagination = null,
+  initialError = "",
+}: {
+  initialCoupons?: Coupon[];
+  initialPagination?: Pagination | null;
+  initialError?: string;
+}) {
   const { confirm, dialog } = useConfirm();
-  const [coupons, setCoupons] = useState<Coupon[]>([]);
-  const [pagination, setPagination] = useState<Pagination | null>(null);
+  const seeded = initialPagination !== null && !initialError;
+  const consumeSeed = useServerSeed(seeded);
+  const [coupons, setCoupons] = useState<Coupon[]>(seeded ? initialCoupons : []);
+  const [pagination, setPagination] = useState<Pagination | null>(seeded ? initialPagination : null);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [appliedSearch, setAppliedSearch] = useState("");
@@ -41,11 +52,12 @@ export function CouponsAdmin() {
   const [editing, setEditing] = useState<Coupon | null>(null);
   const [open, setOpen] = useState(false);
   const [listError, setListError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!seeded);
   const [version, setVersion] = useState(0);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   useEffect(() => {
+    if (consumeSeed()) return;
     let active = true;
     setLoading(true);
     listCoupons({
@@ -247,7 +259,7 @@ export function CouponsAdmin() {
       {loading ? <p className="mt-6 text-sm text-ink/60">Loading coupons…</p> : null}
       {!loading && !listError && coupons.length === 0 ? (
         <div className="mt-6 rounded-[1.75rem] border border-dashed border-ink/15 bg-paper px-6 py-12 text-center">
-          <p className="font-display text-3xl">No coupons in this view.</p>
+          <p className="text-base leading-7 text-ink/70">No coupons in this view.</p>
           <button type="button" onClick={openCreate} className="mt-5 cursor-pointer text-sm text-wine">
             Add the first one
           </button>
@@ -262,7 +274,7 @@ export function CouponsAdmin() {
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <p className="font-display text-2xl leading-none tracking-tight">{coupon.code}</p>
+                    <p className="text-base font-medium leading-snug">{coupon.code}</p>
                     <span
                       className={`rounded-full px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] ${
                         coupon.isActive ? "bg-mint text-leaf" : "bg-blush text-wine"

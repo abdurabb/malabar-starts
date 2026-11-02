@@ -4,10 +4,10 @@ export function About() {
       <div className="mx-auto grid w-full max-w-6xl gap-12 px-5 py-10 sm:px-8 md:py-14 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-start">
         <div>
           <p className="text-xs uppercase tracking-[0.22em] text-wine">The house</p>
-          <h2 className="mt-3 font-display text-4xl leading-[1.02] tracking-tight text-ink sm:text-6xl">
+          <h2 className="page-title mt-2 text-ink">
             A Malabar name on a Sharjah counter.
           </h2>
-          <div className="mt-8 space-y-5 text-base leading-8 text-ink/75">
+          <div className="page-body space-y-4 text-ink/75">
             <p>
               Malabar Starts Food Stuff is a food supply house in Sharjah. The name
               carries the Malabar coast — pepper, home cooking, and a table that
@@ -23,13 +23,13 @@ export function About() {
         </div>
         <aside className="rounded-[1.75rem] border border-leaf/15 bg-mint px-7 py-8 text-ink sm:px-9 sm:py-10">
           <p className="text-xs uppercase tracking-[0.2em] text-leaf">Where</p>
-          <p className="mt-5 font-display text-5xl leading-[0.95] tracking-tight">
+          <p className="page-title mt-3">
             Sharjah
           </p>
-          <p className="mt-2 font-display text-2xl italic text-leaf">
+          <p className="page-body italic text-leaf">
             United Arab Emirates
           </p>
-          <p className="mt-6 max-w-sm text-sm leading-6 text-ink/70">
+          <p className="page-body text-ink/70">
             The counter serves Sharjah first, then kitchens elsewhere in the
             Emirates once the cut and the quantity are agreed.
           </p>

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useServerSeed } from "@/hooks/useServerSeed";
 import { UserFormDialog } from "@/components/admin/user-form-dialog";
 import { useConfirm } from "@/components/ui/confirm-dialog";
 import { ChoiceGroup, controlClass } from "@/components/shop/filter-controls";
@@ -17,11 +18,21 @@ function roleLabel(role: ManagedUser["role"]) {
   return role === "admin" ? "Admin" : "Customer";
 }
 
-export function UsersAdmin() {
+export function UsersAdmin({
+  initialUsers = [],
+  initialPagination = null,
+  initialError = "",
+}: {
+  initialUsers?: ManagedUser[];
+  initialPagination?: Pagination | null;
+  initialError?: string;
+}) {
   const { session } = useAuth();
   const { confirm, dialog } = useConfirm();
-  const [users, setUsers] = useState<ManagedUser[]>([]);
-  const [pagination, setPagination] = useState<Pagination | null>(null);
+  const seeded = initialPagination !== null && !initialError;
+  const consumeSeed = useServerSeed(seeded);
+  const [users, setUsers] = useState<ManagedUser[]>(seeded ? initialUsers : []);
+  const [pagination, setPagination] = useState<Pagination | null>(seeded ? initialPagination : null);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [appliedSearch, setAppliedSearch] = useState("");
@@ -29,11 +40,12 @@ export function UsersAdmin() {
   const [editing, setEditing] = useState<ManagedUser | null>(null);
   const [open, setOpen] = useState(false);
   const [listError, setListError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!seeded);
   const [version, setVersion] = useState(0);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   useEffect(() => {
+    if (consumeSeed()) return;
     let active = true;
     setLoading(true);
     listUsers({
@@ -219,7 +231,7 @@ export function UsersAdmin() {
       {loading ? <p className="mt-6 text-sm text-ink/60">Loading users…</p> : null}
       {!loading && !listError && users.length === 0 ? (
         <div className="mt-6 rounded-[1.75rem] border border-dashed border-ink/15 bg-paper px-6 py-12 text-center">
-          <p className="font-display text-3xl">No users in this view.</p>
+          <p className="text-base leading-7 text-ink/70">No users in this view.</p>
           <button type="button" onClick={openCreate} className="mt-5 cursor-pointer text-sm text-wine">
             Add the first one
           </button>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
+import { useServerSeed } from "@/hooks/useServerSeed";
 import { createPortal } from "react-dom";
 import { FormError } from "@/components/auth/fields";
 import { AddressFields } from "@/components/shop/address-fields";
@@ -31,13 +32,23 @@ function deleteHint(total: number) {
   return "Make another address the default before deleting this one.";
 }
 
-export function SavedAddresses() {
+export function SavedAddresses({
+  initialAddresses = [],
+  initialPagination = null,
+  initialError = "",
+}: {
+  initialAddresses?: Address[];
+  initialPagination?: Pagination | null;
+  initialError?: string;
+}) {
   const { session } = useAuth();
   const { confirm, dialog } = useConfirm();
-  const [addresses, setAddresses] = useState<Address[]>([]);
-  const [pagination, setPagination] = useState<Pagination | null>(null);
+  const seeded = initialPagination !== null && !initialError;
+  const consumeSeed = useServerSeed(seeded);
+  const [addresses, setAddresses] = useState<Address[]>(seeded ? initialAddresses : []);
+  const [pagination, setPagination] = useState<Pagination | null>(seeded ? initialPagination : null);
   const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!seeded);
   const [error, setError] = useState("");
   const [version, setVersion] = useState(0);
   const [open, setOpen] = useState(false);
@@ -52,6 +63,7 @@ export function SavedAddresses() {
   }, []);
 
   useEffect(() => {
+    if (consumeSeed()) return;
     let active = true;
     setLoading(true);
     listAddresses({ page, limit, sort: "newest" })
@@ -189,7 +201,7 @@ export function SavedAddresses() {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-xs uppercase tracking-[0.16em] text-wine">{editing ? "Update" : "New address"}</p>
-                  <h2 id="address-form-title" className="mt-1 font-display text-4xl tracking-tight">
+                  <h2 id="address-form-title" className="page-title mt-1">
                     {editing ? "Edit address" : "Add an address"}
                   </h2>
                 </div>
@@ -254,13 +266,7 @@ export function SavedAddresses() {
 
   return (
     <section id="addresses" className="rounded-[1.5rem] border border-ink/10 bg-paper p-5 sm:p-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="font-display text-4xl tracking-tight">Addresses</h1>
-          <p className="mt-2 max-w-xl text-sm leading-6 text-ink/60">
-            One address is the default. Make another the default before you delete the current one.
-          </p>
-        </div>
+      <div className="flex flex-wrap items-end justify-end gap-3">
         <button
           type="button"
           onClick={openCreate}
@@ -289,7 +295,7 @@ export function SavedAddresses() {
                   </span>
                 ) : null}
               </div>
-              <p className="mt-3 font-display text-2xl tracking-tight">{address.fullName}</p>
+              <p className="mt-3 text-base font-medium leading-snug">{address.fullName}</p>
               <div className="mt-2 text-sm leading-6 text-ink/70">
                 {formatAddressLines(address).map((line, index) => (
                   <p key={`${address.id}-${index}`}>{line}</p>

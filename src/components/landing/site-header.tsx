@@ -168,56 +168,56 @@ export function SiteHeader({ home }: { home?: HomeData | null }) {
           <nav id="mobile-nav" className="border-t border-ink/10 bg-ivory px-5 py-4 md:hidden" aria-label="Mobile">
             <ul className="flex flex-col">
               <li>
-                <Link href={routes.categories} className="block border-b border-ink/8 py-3 font-display text-2xl text-ink">
+                <Link href={routes.categories} className="block border-b border-ink/8 py-3 text-base text-ink">
                   Categories
                 </Link>
               </li>
               <li>
-                <Link href={routes.brands} className="block border-b border-ink/8 py-3 font-display text-2xl text-ink">
+                <Link href={routes.brands} className="block border-b border-ink/8 py-3 text-base text-ink">
                   Brands
                 </Link>
               </li>
               {storyLinks.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="block border-b border-ink/8 py-3 font-display text-2xl text-ink">
+                  <Link href={link.href} className="block border-b border-ink/8 py-3 text-base text-ink">
                     {link.label}
                   </Link>
                 </li>
               ))}
               <li>
-                <Link href={routes.products} className="block border-b border-ink/8 py-3 font-display text-2xl text-ink">
+                <Link href={routes.products} className="block border-b border-ink/8 py-3 text-base text-ink">
                   Products
                 </Link>
               </li>
               {status === "authenticated" && role === "user" ? (
                 <>
                   <li>
-                    <Link href={routes.orders} className="block border-b border-ink/8 py-3 font-display text-2xl">
+                    <Link href={routes.orders} className="block border-b border-ink/8 py-3 text-base">
                       Orders
                     </Link>
                   </li>
                   <li>
-                    <Link href={routes.cart} className="block border-b border-ink/8 py-3 font-display text-2xl">
+                    <Link href={routes.cart} className="block border-b border-ink/8 py-3 text-base">
                       Cart{cartCount ? ` (${cartCount})` : ""}
                     </Link>
                   </li>
                   <li>
-                    <Link href={routes.wishlist} className="block border-b border-ink/8 py-3 font-display text-2xl">
+                    <Link href={routes.wishlist} className="block border-b border-ink/8 py-3 text-base">
                       Wishlist{wishCount ? ` (${wishCount})` : ""}
                     </Link>
                   </li>
                   <li>
-                    <Link href={routes.profile} className="block border-b border-ink/8 py-3 font-display text-2xl">
+                    <Link href={routes.profile} className="block border-b border-ink/8 py-3 text-base">
                       Profile
                     </Link>
                   </li>
                   <li>
-                    <Link href={routes.payments} className="block border-b border-ink/8 py-3 font-display text-2xl">
+                    <Link href={routes.payments} className="block border-b border-ink/8 py-3 text-base">
                       Payment history
                     </Link>
                   </li>
                   <li>
-                    <Link href={routes.addresses} className="block border-b border-ink/8 py-3 font-display text-2xl">
+                    <Link href={routes.addresses} className="block border-b border-ink/8 py-3 text-base">
                       Addresses
                     </Link>
                   </li>
@@ -225,7 +225,7 @@ export function SiteHeader({ home }: { home?: HomeData | null }) {
               ) : null}
               {status === "authenticated" && role === "admin" ? (
                 <li>
-                  <Link href={routes.admin} className="block border-b border-ink/8 py-3 font-display text-2xl">
+                  <Link href={routes.admin} className="block border-b border-ink/8 py-3 text-base">
                     Dashboard
                   </Link>
                 </li>

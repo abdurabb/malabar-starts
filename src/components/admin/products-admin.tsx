@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useServerSeed } from "@/hooks/useServerSeed";
 import { ProductFormDialog } from "@/components/admin/product-form-dialog";
 import { useConfirm } from "@/components/ui/confirm-dialog";
 import { ChoiceGroup, controlClass, FilterSelect } from "@/components/shop/filter-controls";
@@ -22,12 +23,27 @@ const limit = 10;
 
 type StockFilter = "all" | "in" | "out";
 
-export function ProductsAdmin() {
+export function ProductsAdmin({
+  initialProducts = [],
+  initialPagination = null,
+  initialError = "",
+  initialBrands,
+  initialCategories,
+}: {
+  initialProducts?: CatalogProduct[];
+  initialPagination?: Pagination | null;
+  initialError?: string;
+  initialBrands?: BrandOption[];
+  initialCategories?: CategoryOption[];
+}) {
   const { confirm, dialog } = useConfirm();
-  const [products, setProducts] = useState<CatalogProduct[]>([]);
-  const [pagination, setPagination] = useState<Pagination | null>(null);
-  const [brands, setBrands] = useState<BrandOption[]>([]);
-  const [categories, setCategories] = useState<CategoryOption[]>([]);
+  const seeded = initialPagination !== null && !initialError;
+  const consumeSeed = useServerSeed(seeded);
+  const optionsReady = initialBrands !== undefined && initialCategories !== undefined;
+  const [products, setProducts] = useState<CatalogProduct[]>(seeded ? initialProducts : []);
+  const [pagination, setPagination] = useState<Pagination | null>(seeded ? initialPagination : null);
+  const [brands, setBrands] = useState<BrandOption[]>(initialBrands ?? []);
+  const [categories, setCategories] = useState<CategoryOption[]>(initialCategories ?? []);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [appliedSearch, setAppliedSearch] = useState("");
@@ -39,16 +55,18 @@ export function ProductsAdmin() {
   const [editing, setEditing] = useState<CatalogProduct | null>(null);
   const [open, setOpen] = useState(false);
   const [listError, setListError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!seeded);
   const [version, setVersion] = useState(0);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   useEffect(() => {
+    if (optionsReady) return;
     listBrandOptions().then(setBrands).catch(() => setBrands([]));
     listCategoryOptions().then(setCategories).catch(() => setCategories([]));
-  }, []);
+  }, [optionsReady]);
 
   useEffect(() => {
+    if (consumeSeed()) return;
     let active = true;
     setLoading(true);
     listProducts({
@@ -301,7 +319,7 @@ export function ProductsAdmin() {
       {loading ? <p className="mt-6 text-sm text-ink/60">Loading products…</p> : null}
       {!loading && !listError && products.length === 0 ? (
         <div className="mt-6 rounded-[1.75rem] border border-dashed border-ink/15 bg-paper px-6 py-12 text-center">
-          <p className="font-display text-3xl">No products in this view.</p>
+          <p className="text-base leading-7 text-ink/70">No products in this view.</p>
           <button type="button" onClick={openCreate} className="mt-5 text-sm text-wine">
             Add the first one
           </button>

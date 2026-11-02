@@ -1,5 +1,8 @@
 import { Suspense } from "react";
 import { ProductAdminDetail } from "@/components/admin/product-admin-detail";
+import { ApiError, errorText } from "@/lib/apiError";
+import { getProduct } from "@/lib/products";
+import type { CatalogProduct } from "@/types/product";
 import type { Metadata } from "next";
 
 export const instant = false;
@@ -18,5 +21,12 @@ export default function AdminProductPage({ params }: { params: Promise<{ id: str
 
 async function AdminProductRoute({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  return <ProductAdminDetail id={id} />;
+  let product: CatalogProduct | null = null;
+  let error = "";
+  try {
+    product = await getProduct(id);
+  } catch (caught) {
+    error = caught instanceof ApiError && caught.status === 404 ? "Product not found" : errorText(caught, "This product could not be opened.");
+  }
+  return <ProductAdminDetail id={id} initialProduct={product} initialError={error} />;
 }

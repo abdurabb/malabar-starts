@@ -65,7 +65,7 @@ export function UserOrders({ userId }: { userId: string }) {
   return (
     <div className="mt-5 border-t border-ink/10 pt-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h4 className="font-display text-2xl tracking-tight">Orders</h4>
+        <h4 className="page-title">Orders</h4>
         {pagination ? <p className="text-sm text-ink/55">{pagination.total} orders</p> : null}
       </div>
       <label className="relative mt-4 block">
@@ -102,7 +102,7 @@ export function UserOrders({ userId }: { userId: string }) {
             <li key={order.id} className="rounded-2xl border border-ink/10 p-3">
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>
-                  <Link href={`/admin/orders/${order.id}`} className="font-display text-2xl tracking-tight hover:text-wine">
+                  <Link href={`/admin/orders/${order.id}`} className="text-base font-medium leading-snug hover:text-wine">
                     {order.orderNumber}
                   </Link>
                   <p className="mt-1 text-sm text-ink/55">

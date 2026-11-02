@@ -211,7 +211,7 @@ export function CouponFormDialog({
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs uppercase tracking-[0.16em] text-wine">{coupon ? "Update" : "New offer"}</p>
-            <h2 id="coupon-form-title" className="mt-1 font-display text-4xl tracking-tight">
+            <h2 id="coupon-form-title" className="page-title mt-1">
               {coupon ? coupon.code : "Add a coupon"}
             </h2>
           </div>

@@ -74,12 +74,12 @@ function toAuthUser(user: AuthUser, next: { name: string; email: string; mobile:
   };
 }
 
-export function ProfileView() {
+export function ProfileView({ user: serverUser = null }: { user?: AuthUser | null }) {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { session } = useAuth();
   const { confirm, dialog } = useConfirm();
-  const user = session?.user;
+  const user = session?.user ?? serverUser ?? undefined;
   const [form, setForm] = useState<ProfileForm>({ name: "", mobile: "" });
   const [seededId, setSeededId] = useState<string | null>(null);
   const [error, setError] = useState("");
@@ -184,11 +184,10 @@ export function ProfileView() {
   if (!user) return null;
 
   return (
-    <PageFrame eyebrow="Account" title={user.name} lede="Your account details.">
-      <h1 className="mb-6 font-display text-4xl tracking-tight">Profile</h1>
+    <PageFrame eyebrow="Account" title="Profile" lede="Your account details.">
       <div className="grid items-start gap-6 lg:grid-cols-[22rem_minmax(0,1fr)]">
         <section className="rounded-[1.5rem] border border-ink/10 bg-paper p-6 text-sm">
-          <p className="font-display text-3xl tracking-tight">{user.name}</p>
+          <p className="text-base font-medium text-ink">{user.name}</p>
           <p className="mt-2 text-ink/70">{user.email}</p>
           <dl className="mt-4 grid gap-3">
             <div>
@@ -229,8 +228,8 @@ export function ProfileView() {
           </div>
         </section>
         <form onSubmit={onSubmit} noValidate className="rounded-[1.5rem] border border-ink/10 bg-paper p-6">
-          <h2 className="font-display text-3xl tracking-tight">Edit profile</h2>
-          <p className="mt-2 text-sm leading-6 text-ink/60">Update your name or mobile.</p>
+          <h2 className="page-title">Edit profile</h2>
+          <p className="page-body text-ink/70">Update your name or mobile.</p>
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
             <label className="block sm:col-span-2">
               <span className="text-sm text-ink/70">Name</span>
@@ -278,8 +277,8 @@ export function ProfileView() {
         </form>
         {passwordOpen ? (
           <form onSubmit={onPasswordSubmit} noValidate className="rounded-[1.5rem] border border-ink/10 bg-paper p-6 lg:col-span-2">
-            <h2 className="font-display text-3xl tracking-tight">Change password</h2>
-            <p className="mt-2 text-sm leading-6 text-ink/60">Enter your current password, then choose a new one.</p>
+            <h2 className="page-title">Change password</h2>
+            <p className="page-body text-ink/70">Enter your current password, then choose a new one.</p>
             <div className="mt-5 grid gap-4 sm:grid-cols-3">
               <label className="block">
                 <span className="text-sm text-ink/70">Current password</span>

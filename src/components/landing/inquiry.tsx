@@ -9,14 +9,17 @@ export function Inquiry() {
     <section id="contact" className="scroll-mt-28 border-t border-ink/10 bg-[#f8ebe3] text-ink">
       <div className="mx-auto w-full max-w-6xl px-5 py-10 sm:px-8 md:py-14">
         <p className="text-xs uppercase tracking-[0.22em] text-saffron">Contact us</p>
-        <h2 className="mt-3 max-w-3xl font-display text-4xl leading-[1.02] tracking-tight sm:text-6xl">
+        <h2 className="page-title mt-2 max-w-3xl">
           Reach the Sharjah counter.
         </h2>
+        <p className="page-body text-ink/70">
+          Send a note, or visit the counter in Sharjah. The desk confirms the rate and the cut before the order moves.
+        </p>
         <div className="mt-10 grid items-start gap-8 lg:grid-cols-2">
           <div className="grid gap-6">
             <div className="rounded-[1.5rem] bg-paper p-6 sm:p-8">
               <p className="text-xs uppercase tracking-[0.18em] text-wine">Address</p>
-              <address className="mt-4 font-display text-3xl leading-tight tracking-tight not-italic sm:text-4xl">
+              <address className="page-body font-display not-italic text-ink">
                 {addressLines.map((line) => (
                   <span key={line} className="block">
                     {line}

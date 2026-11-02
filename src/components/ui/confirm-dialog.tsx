@@ -60,10 +60,10 @@ export function ConfirmDialog({
         className="relative w-full max-w-md rounded-[1.75rem] bg-paper p-6 shadow-2xl sm:p-7"
       >
         <p className="text-xs uppercase tracking-[0.16em] text-wine">{danger ? "Please confirm" : "Confirm"}</p>
-        <h2 id={titleId} className="mt-2 font-display text-3xl leading-none tracking-tight">
+        <h2 id={titleId} className="page-title mt-2">
           {request.title}
         </h2>
-        <p className="mt-4 text-sm leading-6 text-ink/70">{request.message}</p>
+        <p className="page-body text-ink/70">{request.message}</p>
         <div className="mt-6 flex flex-wrap justify-end gap-3">
           <button
             type="button"

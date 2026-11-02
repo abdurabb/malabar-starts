@@ -69,7 +69,7 @@ export function UserWishlist({ userId }: { userId: string }) {
   return (
     <div className="mt-5 border-t border-ink/10 pt-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h4 className="font-display text-2xl tracking-tight">Wishlist</h4>
+        <h4 className="page-title">Wishlist</h4>
         {pagination ? <p className="text-sm text-ink/55">{pagination.total} saved</p> : null}
       </div>
       <label className="relative mt-4 block">
@@ -113,7 +113,7 @@ export function UserWishlist({ userId }: { userId: string }) {
                       <p className="text-[0.65rem] uppercase tracking-[0.14em] text-wine">
                         {product.category?.name ?? "Uncategorized"}
                       </p>
-                      <Link href={`/admin/products/${product.id}`} className="mt-1 block font-display text-2xl tracking-tight hover:text-wine">
+                      <Link href={`/admin/products/${product.id}`} className="mt-1 block text-base font-medium leading-snug hover:text-wine">
                         {product.name}
                       </Link>
                       <p className="mt-1 truncate text-sm text-ink/55">

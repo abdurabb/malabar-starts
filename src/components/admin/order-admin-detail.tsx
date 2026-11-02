@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useServerSeed } from "@/hooks/useServerSeed";
 import { OrderReviewAdmin } from "@/components/admin/order-review-admin";
 import { CancelOrderDialog } from "@/components/shop/cancel-order-dialog";
 import { NoteEditor } from "@/components/shop/order-editors";
@@ -23,15 +24,26 @@ import {
 import type { OrderRecord } from "@/types/order";
 import type { OrderStatus } from "@/types/status";
 
-export function OrderAdminDetail({ id }: { id: string }) {
+export function OrderAdminDetail({
+  id,
+  initialOrder = null,
+  initialError = "",
+}: {
+  id: string;
+  initialOrder?: OrderRecord | null;
+  initialError?: string;
+}) {
   const { confirm, dialog } = useConfirm();
-  const [order, setOrder] = useState<OrderRecord | null>(null);
+  const seeded = initialOrder !== null && !initialError;
+  const consumeSeed = useServerSeed(seeded);
+  const [order, setOrder] = useState<OrderRecord | null>(seeded ? initialOrder : null);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!seeded);
   const [busy, setBusy] = useState(false);
   const [cancelOpen, setCancelOpen] = useState(false);
 
   useEffect(() => {
+    if (consumeSeed()) return;
     let active = true;
     setLoading(true);
     getOrder(id)
@@ -130,7 +142,7 @@ export function OrderAdminDetail({ id }: { id: string }) {
         All orders
       </Link>
       <div className="mt-4 mb-6 flex flex-wrap items-center gap-3">
-        <h2 className="font-display text-4xl tracking-tight">{order.orderNumber}</h2>
+        <h2 className="page-title">{order.orderNumber}</h2>
         <StatusBadge status={order.status} />
       </div>
       <p className="mb-2 text-sm text-ink/55">{formatOrderWhen(order.createdAt)}</p>

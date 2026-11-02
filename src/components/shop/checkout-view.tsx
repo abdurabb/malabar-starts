@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { useServerSeed } from "@/hooks/useServerSeed";
 import { FormError } from "@/components/auth/fields";
 import { DeliveryPicker } from "@/components/shop/delivery-picker";
 import { PageFrame } from "@/components/shop/page-frame";
@@ -31,24 +32,41 @@ type Placed = {
   paymentStatus?: string;
 };
 
-export function CheckoutView() {
+export function CheckoutView({
+  initialCart = null,
+  initialPagination = null,
+  initialCartError = "",
+  initialAddresses,
+  initialAddressError = "",
+}: {
+  initialCart?: CartRecord | null;
+  initialPagination?: Pagination | null;
+  initialCartError?: string;
+  initialAddresses?: Address[];
+  initialAddressError?: string;
+}) {
   const { session } = useAuth();
   const dispatch = useAppDispatch();
   const revision = useAppSelector((state) => state.shop.cartRevision);
-  const seeded = useRef(false);
+  const profileSeeded = useRef(false);
   const placedOrder = useRef(false);
   const addressTouched = useRef(false);
+  const cartSeeded = !initialCartError && initialCart !== null;
+  const addressSeeded = initialAddresses !== undefined && !initialAddressError;
+  const consumeCartSeed = useServerSeed(cartSeeded);
+  const consumeAddressSeed = useServerSeed(addressSeeded);
+  const preferred = initialAddresses?.find((item) => item.isDefault) ?? initialAddresses?.[0];
   const [page, setPage] = useState(1);
-  const [cart, setCart] = useState<CartRecord | null>(null);
-  const [pagination, setPagination] = useState<Pagination | null>(null);
+  const [cart, setCart] = useState<CartRecord | null>(cartSeeded ? initialCart : null);
+  const [pagination, setPagination] = useState<Pagination | null>(cartSeeded ? initialPagination : null);
   const [cartError, setCartError] = useState("");
-  const [cartLoading, setCartLoading] = useState(true);
-  const [addresses, setAddresses] = useState<Address[]>([]);
-  const [addressesReady, setAddressesReady] = useState(false);
-  const [mode, setMode] = useState<DeliveryMode>("saved");
-  const [addressId, setAddressId] = useState("");
+  const [cartLoading, setCartLoading] = useState(!cartSeeded);
+  const [addresses, setAddresses] = useState<Address[]>(addressSeeded ? initialAddresses ?? [] : []);
+  const [addressesReady, setAddressesReady] = useState(addressSeeded);
+  const [mode, setMode] = useState<DeliveryMode>(addressSeeded && preferred ? "saved" : "temporary");
+  const [addressId, setAddressId] = useState(addressSeeded && preferred ? preferred.id : "");
   const [draft, setDraft] = useState<AddressFormState>(emptyAddressForm);
-  const [saveAddress, setSaveAddress] = useState(true);
+  const [saveAddress, setSaveAddress] = useState(!(addressSeeded && preferred));
   const [makeDefault, setMakeDefault] = useState(false);
   const [note, setNote] = useState("");
   const [formError, setFormError] = useState("");
@@ -56,8 +74,8 @@ export function CheckoutView() {
   const [placed, setPlaced] = useState<Placed | null>(null);
 
   useEffect(() => {
-    if (seeded.current || !session) return;
-    seeded.current = true;
+    if (profileSeeded.current || !session) return;
+    profileSeeded.current = true;
     setDraft((current) => ({
       ...current,
       fullName: session.user.name,
@@ -68,6 +86,7 @@ export function CheckoutView() {
 
   useEffect(() => {
     if (placedOrder.current) return;
+    if (consumeCartSeed()) return;
     let active = true;
     setCartLoading(true);
     getCart({ page, limit })
@@ -95,6 +114,7 @@ export function CheckoutView() {
   }, [page, revision]);
 
   useEffect(() => {
+    if (consumeAddressSeed()) return;
     let active = true;
     listAddresses({ limit: 50, sort: "newest" })
       .then((result) => {
@@ -178,11 +198,12 @@ export function CheckoutView() {
 
   if (placed) {
     return (
-      <PageFrame eyebrow="Order" title="Order placed" lede="Payment did not return a link.">
+      <PageFrame
+        eyebrow="Order placed"
+        title={placed.orderNumber}
+        lede={`${placed.message} You can review it from your orders.`}
+      >
         <div className="mx-auto max-w-xl rounded-[1.5rem] border border-ink/10 bg-paper p-8">
-          <p className="text-xs uppercase tracking-[0.16em] text-wine">Order placed</p>
-          <h1 className="mt-3 font-display text-4xl tracking-tight">{placed.orderNumber}</h1>
-          <p className="mt-3 text-sm leading-6 text-ink/70">{placed.message} You can review it from your orders.</p>
           {placed.paymentStatus ? (
             <div className="mt-4">
               <StatusBadge status={placed.paymentStatus} kind="payment" />
@@ -200,14 +221,12 @@ export function CheckoutView() {
   }
 
   return (
-    <PageFrame eyebrow="Checkout" title="Place your order" lede="Choose a delivery address, then continue to payment.">
-      <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="font-display text-4xl tracking-tight">Place your order</h1>
-          <p className="mt-2 max-w-xl text-sm leading-6 text-ink/60">
-            Use a saved address, or enter one just for this order. Payment opens after the order is created.
-          </p>
-        </div>
+    <PageFrame
+      eyebrow="Checkout"
+      title="Place your order"
+      lede="Use a saved address, or enter one just for this order. Payment opens after the order is created."
+    >
+      <div className="mb-5 flex justify-end">
         <Link href={routes.cart} className="text-sm text-wine">
           Back to cart
         </Link>
@@ -216,7 +235,7 @@ export function CheckoutView() {
       {cartLoading && !cart ? <p className="text-sm text-ink/60">Loading checkout…</p> : null}
       {!cartLoading && !cartError && cart && cart.itemCount === 0 ? (
         <div className="rounded-[1.5rem] border border-ink/10 bg-paper p-8">
-          <p className="font-display text-3xl">The cart is empty.</p>
+          <p className="text-base leading-7 text-ink/70">The cart is empty.</p>
           <Link href={routes.products} className="mt-4 inline-flex text-wine">
             Browse products
           </Link>
@@ -225,7 +244,7 @@ export function CheckoutView() {
       {cart && cart.itemCount > 0 ? (
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)]">
           <section>
-            <h2 className="font-display text-3xl tracking-tight">Delivery</h2>
+            <h2 className="page-title">Delivery</h2>
             <div className="mt-4">
               {addressesReady ? (
                 <DeliveryPicker
@@ -281,7 +300,7 @@ export function CheckoutView() {
           </section>
           <aside className="h-fit rounded-[1.5rem] border border-ink/10 bg-paper p-6 lg:sticky lg:top-28">
             <div className="flex items-end justify-between gap-3">
-              <h2 className="font-display text-3xl tracking-tight">Your order</h2>
+              <h2 className="page-title">Your order</h2>
               <p className="text-sm text-ink/55">{cart.itemCount} items</p>
             </div>
             <ul className="mt-4 max-h-80 space-y-3 overflow-auto pr-1">

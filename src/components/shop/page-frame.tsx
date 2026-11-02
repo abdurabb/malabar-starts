@@ -12,11 +12,15 @@ export function PageFrame({
   children: ReactNode;
 }) {
   return (
-    <div className="mx-auto w-full max-w-6xl px-5 py-12 sm:px-8 md:py-16">
-      {/* <p className="text-xs uppercase tracking-[0.22em] text-wine">{eyebrow}</p>
-      <h1 className="mt-3 font-display text-4xl leading-[1.02] tracking-tight text-ink sm:text-6xl">{title}</h1>
-      {lede ? <p className="mt-4 max-w-2xl text-base leading-7 text-ink/70">{lede}</p> : null} */}
-      <div className="">{children}</div>
+    <div className="mx-auto w-full max-w-6xl px-5 py-8 sm:px-8 md:py-12">
+      {title ? (
+        <header className="mb-6">
+          {eyebrow ? <p className="text-xs uppercase tracking-[0.22em] text-wine">{eyebrow}</p> : null}
+          <h1 className={`page-title text-ink ${eyebrow ? "mt-2" : ""}`}>{title}</h1>
+          {lede ? <p className="page-body text-ink/70">{lede}</p> : null}
+        </header>
+      ) : null}
+      <div>{children}</div>
     </div>
   );
 }

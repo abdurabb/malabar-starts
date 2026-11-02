@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useServerSeed } from "@/hooks/useServerSeed";
 import { FilterSelect, controlClass } from "@/components/shop/filter-controls";
 import { PageFrame } from "@/components/shop/page-frame";
 import { PaymentActions } from "@/components/shop/payment-actions";
@@ -17,18 +18,28 @@ import type { PaymentRecordStatus } from "@/types/status";
 
 const limit = 8;
 
-export function PaymentsView() {
+export function PaymentsView({
+  initialPayments = [],
+  initialPagination = null,
+  initialError = "",
+}: {
+  initialPayments?: PaymentRecord[];
+  initialPagination?: Pagination | null;
+  initialError?: string;
+}) {
   const searchParams = useSearchParams();
   const paramOrderId = searchParams.get("orderId") ?? "";
+  const seeded = initialPagination !== null && !initialError;
+  const consumeSeed = useServerSeed(seeded);
   const [orderId, setOrderId] = useState(paramOrderId);
   const [appliedOrderId, setAppliedOrderId] = useState(paramOrderId);
   const [trackedOrderId, setTrackedOrderId] = useState(paramOrderId);
   const [status, setStatus] = useState<PaymentRecordStatus | "all">("all");
   const [page, setPage] = useState(1);
-  const [payments, setPayments] = useState<PaymentRecord[]>([]);
-  const [pagination, setPagination] = useState<Pagination | null>(null);
+  const [payments, setPayments] = useState<PaymentRecord[]>(seeded ? initialPayments : []);
+  const [pagination, setPagination] = useState<Pagination | null>(seeded ? initialPagination : null);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!seeded);
 
   if (paramOrderId !== trackedOrderId) {
     setTrackedOrderId(paramOrderId);
@@ -54,6 +65,7 @@ export function PaymentsView() {
       setLoading(false);
       return;
     }
+    if (consumeSeed()) return;
     let active = true;
     setLoading(true);
     listPayments({
@@ -90,17 +102,12 @@ export function PaymentsView() {
   const filtered = Boolean(appliedOrderId || status !== "all");
 
   return (
-    <PageFrame eyebrow="Payments" title="Payment history">
-      <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="text-xs uppercase tracking-[0.16em] text-wine">Account</p>
-          <h1 className="mt-2 font-display text-2xl tracking-tight">Payment history</h1>
-          <p className="mt-2 max-w-xl text-sm leading-6 text-ink/60">
-            Online payments for your orders. Continue an open checkout, or request a new link when the last one expired.
-          </p>
-        </div>
-        {pagination ? <p className="text-sm text-ink/55">{pagination.total} payments</p> : null}
-      </div>
+    <PageFrame
+      eyebrow="Payments"
+      title="Payment history"
+      lede="Online payments for your orders. Continue an open checkout, or request a new link when the last one expired."
+    >
+      {pagination ? <p className="mb-5 text-sm text-ink/55">{pagination.total} payments</p> : null}
       <div className="grid gap-4 md:grid-cols-[14rem_minmax(0,1fr)]">
         <FilterSelect
           label="Status"
@@ -128,7 +135,7 @@ export function PaymentsView() {
       {loading && payments.length === 0 ? <p className="mt-6 text-sm text-ink/60">Loading payments…</p> : null}
       {!loading && !error && payments.length === 0 ? (
         <div className="mt-6 rounded-[1.5rem] border border-ink/10 bg-paper p-8">
-          <p className="font-display text-3xl">{filtered ? "No payments match." : "No payments yet."}</p>
+          <p className="text-base leading-7 text-ink/70">{filtered ? "No payments match." : "No payments yet."}</p>
           <Link href={routes.orders} className="mt-4 inline-flex text-wine">
             View orders
           </Link>

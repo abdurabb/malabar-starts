@@ -23,7 +23,7 @@ export function OrderTracker({ order }: { order: OrderRecord }) {
 
   return (
     <div className="mt-8">
-      <h2 className="font-display text-3xl tracking-tight">Tracking</h2>
+      <h2 className="page-title">Tracking</h2>
       <ol className="mt-5">
         {steps.map((step, index) => {
           const state = stateFor(index);

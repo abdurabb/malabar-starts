@@ -129,7 +129,7 @@ function AdminFrame({ children }: { children: ReactNode }) {
             </button>
             <div>
               <p className="text-xs uppercase tracking-[0.16em] text-wine">Management</p>
-              <h1 className="font-display text-2xl tracking-tight">{deskTitle(pathname)}</h1>
+              <h1 className="page-title">{deskTitle(pathname)}</h1>
             </div>
           </div>
           <div className="flex items-center gap-3 text-sm">

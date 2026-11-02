@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useServerSeed } from "@/hooks/useServerSeed";
 import { PaymentActions } from "@/components/shop/payment-actions";
 import { PageFrame } from "@/components/shop/page-frame";
 import { StatusBadge } from "@/components/shop/status-badge";
@@ -11,12 +12,23 @@ import { formatPaymentAmount, getPayment } from "@/lib/payments";
 import { routes } from "@/lib/navigation";
 import type { PaymentRecord } from "@/types/payment";
 
-export function PaymentDetailView({ id }: { id: string }) {
-  const [payment, setPayment] = useState<PaymentRecord | null>(null);
+export function PaymentDetailView({
+  id,
+  initialPayment = null,
+  initialError = "",
+}: {
+  id: string;
+  initialPayment?: PaymentRecord | null;
+  initialError?: string;
+}) {
+  const seeded = initialPayment !== null && !initialError;
+  const consumeSeed = useServerSeed(seeded);
+  const [payment, setPayment] = useState<PaymentRecord | null>(seeded ? initialPayment : null);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!seeded);
 
   useEffect(() => {
+    if (consumeSeed()) return;
     let active = true;
     setLoading(true);
     getPayment(id)
@@ -39,7 +51,7 @@ export function PaymentDetailView({ id }: { id: string }) {
   }, [id]);
 
   return (
-    <PageFrame eyebrow="Payment" title="Payment">
+    <PageFrame eyebrow="Payment" title="Payment" lede="Status, amount, and the order this payment belongs to.">
       <Link href={routes.payments} className="text-sm text-wine">
         Payment history
       </Link>
@@ -51,7 +63,7 @@ export function PaymentDetailView({ id }: { id: string }) {
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
                 <p className="text-xs uppercase tracking-[0.16em] text-wine">{payment.orderNumber ?? "Order"}</p>
-                <h1 className="mt-2 font-display text-5xl tracking-tight">
+                <h1 className="page-title mt-2">
                   {formatPaymentAmount(payment.amount, payment.currency)}
                 </h1>
               </div>

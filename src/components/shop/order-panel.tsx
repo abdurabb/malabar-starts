@@ -30,14 +30,14 @@ export function OrderPanel({
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)]">
       <div>
-        <h2 className="font-display text-3xl tracking-tight">Items</h2>
+        <h2 className="page-title">Items</h2>
         <ul className="mt-4 divide-y divide-ink/10 border-y border-ink/10">
           {order.items.map((item) => (
             <li key={item.id} className="py-4">
               <div className="flex gap-4">
                 <ProductMedia src={item.image} alt="" className="size-20 shrink-0 rounded-2xl object-cover" />
                 <div className="min-w-0 flex-1">
-                  <Link href={`${productBase}/${item.product}`} className="block font-display text-2xl tracking-tight hover:text-wine">
+                  <Link href={`${productBase}/${item.product}`} className="block text-base font-medium leading-snug hover:text-wine">
                     {item.name}
                   </Link>
                   <p className="mt-1 text-sm text-ink/55">
@@ -55,8 +55,8 @@ export function OrderPanel({
         <OrderTracker order={order} />
         {showNote && order.note ? (
           <div className="mt-8">
-            <h2 className="font-display text-3xl tracking-tight">Note</h2>
-            <p className="mt-3 text-sm leading-6 text-ink/70">{order.note}</p>
+            <h2 className="page-title">Note</h2>
+            <p className="page-body text-ink/70">{order.note}</p>
           </div>
         ) : null}
         {extras}
@@ -67,7 +67,7 @@ export function OrderPanel({
             <p className="text-xs uppercase tracking-[0.14em] text-ink/45">Customer</p>
             {order.user ? (
               <>
-                <Link href={`/admin/customers/${order.user.id}`} className="mt-2 block font-display text-2xl tracking-tight hover:text-wine">
+                <Link href={`/admin/customers/${order.user.id}`} className="mt-2 block text-base font-medium leading-snug hover:text-wine">
                   {order.user.name}
                 </Link>
                 <p className="mt-1 text-sm text-ink/55">{order.user.email}</p>
@@ -78,7 +78,7 @@ export function OrderPanel({
           </div>
         ) : null}
         <p className="text-xs uppercase tracking-[0.14em] text-wine">{addressSourceLabel(order.shippingAddress.source)}</p>
-        <p className="mt-2 font-display text-2xl tracking-tight">{order.shippingAddress.fullName}</p>
+        <p className="mt-2 text-base font-medium leading-snug">{order.shippingAddress.fullName}</p>
         {order.shippingAddress.label ? <p className="mt-1 text-sm text-ink/55">{order.shippingAddress.label}</p> : null}
         <div className="mt-3 text-sm leading-6 text-ink/70">
           {formatAddressLines(order.shippingAddress).map((line, index) => (

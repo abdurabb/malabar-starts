@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
+import { useServerSeed } from "@/hooks/useServerSeed";
 import { PageFrame } from "@/components/shop/page-frame";
 import { ProductMedia } from "@/components/shop/product-card";
 import { useConfirm } from "@/components/ui/confirm-dialog";
@@ -25,20 +26,31 @@ function increaseLimit(item: CartItem) {
   return "";
 }
 
-export function CartView() {
+export function CartView({
+  initialCart = null,
+  initialPagination = null,
+  initialError = "",
+}: {
+  initialCart?: CartRecord | null;
+  initialPagination?: Pagination | null;
+  initialError?: string;
+}) {
   const dispatch = useAppDispatch();
   const revision = useAppSelector((state) => state.shop.cartRevision);
   const { confirm, dialog } = useConfirm();
+  const seeded = !initialError && initialCart !== null;
+  const consumeSeed = useServerSeed(seeded);
   const [page, setPage] = useState(1);
-  const [cart, setCart] = useState<CartRecord | null>(null);
-  const [pagination, setPagination] = useState<Pagination | null>(null);
+  const [cart, setCart] = useState<CartRecord | null>(seeded ? initialCart : null);
+  const [pagination, setPagination] = useState<Pagination | null>(seeded ? initialPagination : null);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!seeded);
   const [pending, setPending] = useState<string | null>(null);
   const [couponCode, setCouponCode] = useState("");
   const [couponError, setCouponError] = useState("");
 
   useEffect(() => {
+    if (consumeSeed()) return;
     let active = true;
     setLoading(true);
     getCart({ page, limit })
@@ -159,15 +171,12 @@ export function CartView() {
 
   return (
     <PageFrame eyebrow="Cart" title="Cart" lede="Review the cuts in this cart, then place an order.">
-      <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-        <h1 className="font-display text-4xl tracking-tight">Cart</h1>
-        {cart ? <p className="text-sm text-ink/55">{cart.itemCount} in the cart</p> : null}
-      </div>
+      {cart ? <p className="mb-5 text-sm text-ink/55">{cart.itemCount} in the cart</p> : null}
       {error ? <p className="mb-4 rounded-2xl bg-blush px-4 py-3 text-sm text-wine">{error}</p> : null}
       {loading && !cart ? <p className="text-sm text-ink/60">Loading the cart…</p> : null}
       {!loading && !error && cart && cart.itemCount === 0 ? (
         <div className="rounded-[1.5rem] border border-ink/10 bg-paper p-8">
-          <p className="font-display text-3xl">The cart is empty.</p>
+          <p className="text-base leading-7 text-ink/70">The cart is empty.</p>
           <Link href={routes.products} className="mt-4 inline-flex text-wine">
             Browse products
           </Link>
@@ -192,7 +201,7 @@ export function CartView() {
                         <p className="text-xs uppercase tracking-[0.16em] text-wine">
                           {item.product.category?.name ?? "Uncategorized"}
                         </p>
-                        <Link href={`${routes.products}/${item.product.id}`} className="mt-1 block font-display text-2xl tracking-tight hover:text-wine">
+                        <Link href={`${routes.products}/${item.product.id}`} className="mt-1 block text-base font-medium leading-snug hover:text-wine">
                           {item.product.name}
                         </Link>
                         <p className="mt-1 text-sm text-ink/55">

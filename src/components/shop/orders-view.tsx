@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useServerSeed } from "@/hooks/useServerSeed";
 import { FilterSelect, controlClass } from "@/components/shop/filter-controls";
 import { PageFrame } from "@/components/shop/page-frame";
 import { StatusBadge } from "@/components/shop/status-badge";
@@ -23,16 +24,26 @@ const sorts: { value: OrderSort; label: string }[] = [
   { value: "total_desc", label: "Total, high to low" },
 ];
 
-export function OrdersView() {
+export function OrdersView({
+  initialOrders = [],
+  initialPagination = null,
+  initialError = "",
+}: {
+  initialOrders?: OrderRecord[];
+  initialPagination?: Pagination | null;
+  initialError?: string;
+}) {
+  const seeded = initialPagination !== null && !initialError;
+  const consumeSeed = useServerSeed(seeded);
   const [search, setSearch] = useState("");
   const [appliedSearch, setAppliedSearch] = useState("");
   const [status, setStatus] = useState<OrderStatus | "all">("all");
   const [sort, setSort] = useState<OrderSort>("newest");
   const [page, setPage] = useState(1);
-  const [orders, setOrders] = useState<OrderRecord[]>([]);
-  const [pagination, setPagination] = useState<Pagination | null>(null);
+  const [orders, setOrders] = useState<OrderRecord[]>(seeded ? initialOrders : []);
+  const [pagination, setPagination] = useState<Pagination | null>(seeded ? initialPagination : null);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!seeded);
 
   useEffect(() => {
     const next = search.trim();
@@ -45,6 +56,7 @@ export function OrdersView() {
   }, [search, appliedSearch]);
 
   useEffect(() => {
+    if (consumeSeed()) return;
     let active = true;
     setLoading(true);
     listOrders({
@@ -82,10 +94,7 @@ export function OrdersView() {
 
   return (
     <PageFrame eyebrow="Orders" title="Orders" lede="Orders placed from your cart.">
-      <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-        <h1 className="font-display text-4xl tracking-tight">Orders</h1>
-        {pagination ? <p className="text-sm text-ink/55">{pagination.total} orders</p> : null}
-      </div>
+      {pagination ? <p className="mb-5 text-sm text-ink/55">{pagination.total} orders</p> : null}
       <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_14rem_16rem]">
         <label className="relative block">
           <span className="mb-2 block text-[0.68rem] uppercase tracking-[0.16em] text-ink/45">Search</span>
@@ -122,7 +131,7 @@ export function OrdersView() {
       {loading && orders.length === 0 ? <p className="mt-6 text-sm text-ink/60">Loading orders…</p> : null}
       {!loading && !error && orders.length === 0 ? (
         <div className="mt-6 rounded-[1.5rem] border border-ink/10 bg-paper p-8">
-          <p className="font-display text-3xl">{appliedSearch || status !== "all" ? "No orders match." : "No orders yet."}</p>
+          <p className="text-base leading-7 text-ink/70">{appliedSearch || status !== "all" ? "No orders match." : "No orders yet."}</p>
           <Link href={routes.products} className="mt-4 inline-flex text-wine">
             Browse products
           </Link>
@@ -138,7 +147,7 @@ export function OrdersView() {
               >
                 <span className="flex flex-wrap items-start justify-between gap-3">
                   <span>
-                    <span className="block font-display text-2xl tracking-tight">{order.orderNumber}</span>
+                    <span className="block text-base font-medium leading-snug">{order.orderNumber}</span>
                     <span className="mt-1 block text-sm text-ink/55">
                       {formatOrderWhen(order.createdAt)}
                       {order.shippingAddress.city ? ` · ${order.shippingAddress.city}` : ""}

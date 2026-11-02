@@ -51,7 +51,7 @@ export function UserCart({ userId }: { userId: string }) {
   return (
     <div className="mt-5 border-t border-ink/10 pt-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h4 className="font-display text-2xl tracking-tight">Cart</h4>
+        <h4 className="page-title">Cart</h4>
         {cart ? <p className="text-sm text-ink/55">{cart.itemCount} in the cart</p> : null}
       </div>
       {error ? <p className="mt-4 rounded-2xl bg-blush px-4 py-3 text-sm text-wine">{error}</p> : null}
@@ -72,7 +72,7 @@ export function UserCart({ userId }: { userId: string }) {
                       <p className="text-[0.65rem] uppercase tracking-[0.14em] text-wine">
                         {product.category?.name ?? "Uncategorized"}
                       </p>
-                      <Link href={`/admin/products/${product.id}`} className="mt-1 block font-display text-2xl tracking-tight hover:text-wine">
+                      <Link href={`/admin/products/${product.id}`} className="mt-1 block text-base font-medium leading-snug hover:text-wine">
                         {product.name}
                       </Link>
                       <p className="mt-1 truncate text-sm text-ink/55">

@@ -163,7 +163,7 @@ export function UserFormDialog({
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs uppercase tracking-[0.16em] text-wine">{user ? "Update" : "New user"}</p>
-            <h2 id="user-form-title" className="mt-1 font-display text-4xl tracking-tight">
+            <h2 id="user-form-title" className="page-title mt-1">
               {user ? user.name : "Add a user"}
             </h2>
           </div>

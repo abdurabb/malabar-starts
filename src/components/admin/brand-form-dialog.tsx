@@ -137,7 +137,7 @@ export function BrandFormDialog({
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs uppercase tracking-[0.16em] text-wine">{brand ? "Update" : "New brand"}</p>
-            <h2 id="brand-form-title" className="mt-1 font-display text-4xl tracking-tight">
+            <h2 id="brand-form-title" className="page-title mt-1">
               {brand ? brand.name : "Add a brand"}
             </h2>
           </div>

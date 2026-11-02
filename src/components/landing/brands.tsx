@@ -13,10 +13,10 @@ export function Brands({ brands, ready }: { brands: Brand[]; ready: boolean }) {
           heading={
             <div className="max-w-xl">
               <p className="text-xs uppercase tracking-[0.22em] text-wine">Brands</p>
-              <h2 className="mt-3 font-display text-4xl leading-[1.02] tracking-tight text-ink sm:text-6xl">
+              <h2 className="page-title mt-2 text-ink">
                 Names we keep on the shelf.
               </h2>
-              <p className="mt-5 max-w-xl text-base leading-7 text-ink/70">
+              <p className="page-body text-ink/70">
                 Choose a brand and open the products sold under that name.
               </p>
             </div>

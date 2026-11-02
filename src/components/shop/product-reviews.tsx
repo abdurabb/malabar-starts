@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useServerSeed } from "@/hooks/useServerSeed";
 import { ReviewComposer } from "@/components/shop/review-composer";
 import { ProductMedia } from "@/components/shop/product-card";
 import { StarRating } from "@/components/shop/star-rating";
@@ -14,14 +15,26 @@ import type { ReviewRecord, ReviewUpdateInput } from "@/types/review";
 
 const limit = 6;
 
-export function ProductReviews({ productId }: { productId: string }) {
+export function ProductReviews({
+  productId,
+  initialReviews,
+  initialPagination = null,
+  initialError = "",
+}: {
+  productId: string;
+  initialReviews?: ReviewRecord[];
+  initialPagination?: Pagination | null;
+  initialError?: string;
+}) {
   const { session } = useAuth();
   const { confirm, dialog } = useConfirm();
-  const [reviews, setReviews] = useState<ReviewRecord[]>([]);
-  const [pagination, setPagination] = useState<Pagination | null>(null);
+  const seeded = initialReviews !== undefined && !initialError;
+  const consumeSeed = useServerSeed(seeded);
+  const [reviews, setReviews] = useState<ReviewRecord[]>(initialReviews ?? []);
+  const [pagination, setPagination] = useState<Pagination | null>(initialPagination);
   const [page, setPage] = useState(1);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!seeded);
   const [version, setVersion] = useState(0);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [rating, setRating] = useState(0);
@@ -35,6 +48,7 @@ export function ProductReviews({ productId }: { productId: string }) {
   }, [productId]);
 
   useEffect(() => {
+    if (consumeSeed()) return;
     let active = true;
     setLoading(true);
     listReviews({ product: productId, page, limit, isPublish: true })
@@ -126,7 +140,10 @@ export function ProductReviews({ productId }: { productId: string }) {
   return (
     <section className="mx-auto w-full max-w-6xl px-5 pb-16 sm:px-8">
       <div className="flex flex-wrap items-end justify-between gap-3 border-t border-ink/10 pt-10">
-        <h2 className="font-display text-4xl tracking-tight">Reviews</h2>
+        <div>
+          <h2 className="page-title">Reviews</h2>
+          <p className="page-body text-ink/70">Notes from customers who bought this product.</p>
+        </div>
         {pagination ? <p className="text-sm text-ink/55">{pagination.total} reviews</p> : null}
       </div>
       {error ? <p className="mt-4 rounded-2xl bg-blush px-4 py-3 text-sm text-wine">{error}</p> : null}
@@ -143,7 +160,7 @@ export function ProductReviews({ productId }: { productId: string }) {
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <div>
-                        <p className="font-display text-2xl tracking-tight">{review.user.name ?? "Customer"}</p>
+                        <p className="text-base font-medium leading-snug">{review.user.name ?? "Customer"}</p>
                         <div className="mt-1 flex flex-wrap items-center gap-2">
                           <StarRating rating={review.rating} />
                           <span className="text-sm text-ink/55">{review.rating} / 5</span>

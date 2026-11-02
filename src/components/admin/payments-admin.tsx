@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useServerSeed } from "@/hooks/useServerSeed";
 import { FilterSelect, controlClass } from "@/components/shop/filter-controls";
 import { PaymentPager, PaymentRows } from "@/components/shop/payment-card";
 import { errorText } from "@/lib/apiError";
@@ -13,7 +14,15 @@ import type { PaymentRecordStatus } from "@/types/status";
 
 const limit = 10;
 
-export function PaymentsAdmin() {
+export function PaymentsAdmin({
+  initialPayments = [],
+  initialPagination = null,
+  initialError = "",
+}: {
+  initialPayments?: PaymentRecord[];
+  initialPagination?: Pagination | null;
+  initialError?: string;
+}) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const paramOrderId = searchParams.get("orderId") ?? "";
@@ -27,10 +36,12 @@ export function PaymentsAdmin() {
   const [tracked, setTracked] = useState(`${paramOrderId}\n${paramUserId}\n${safeStatus}`);
   const [status, setStatus] = useState<PaymentRecordStatus | "all">(safeStatus);
   const [page, setPage] = useState(1);
-  const [payments, setPayments] = useState<PaymentRecord[]>([]);
-  const [pagination, setPagination] = useState<Pagination | null>(null);
+  const seeded = initialPagination !== null && !initialError;
+  const consumeSeed = useServerSeed(seeded);
+  const [payments, setPayments] = useState<PaymentRecord[]>(seeded ? initialPayments : []);
+  const [pagination, setPagination] = useState<Pagination | null>(seeded ? initialPagination : null);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!seeded);
 
   const nextTracked = `${paramOrderId}\n${paramUserId}\n${safeStatus}`;
   if (nextTracked !== tracked) {
@@ -62,6 +73,7 @@ export function PaymentsAdmin() {
       setLoading(false);
       return;
     }
+    if (consumeSeed()) return;
     let active = true;
     setLoading(true);
     listPayments({
@@ -159,7 +171,7 @@ export function PaymentsAdmin() {
       {error ? <p className="mt-4 rounded-2xl bg-blush px-4 py-3 text-sm text-wine">{error}</p> : null}
       {loading && payments.length === 0 ? <p className="mt-6 text-sm text-ink/60">Loading payments…</p> : null}
       {!loading && !error && payments.length === 0 ? (
-        <p className="mt-6 rounded-[1.5rem] border border-dashed border-ink/15 bg-paper px-6 py-12 text-center font-display text-3xl">
+        <p className="mt-6 rounded-[1.5rem] border border-dashed border-ink/15 bg-paper px-6 py-12 text-center text-base leading-7 text-ink/70">
           {filtered ? "No payments match." : "No payments yet."}
         </p>
       ) : null}

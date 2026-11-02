@@ -13,9 +13,12 @@ export function RecentOrders({ orders, ready }: { orders: OrderRecord[]; ready: 
         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div className="max-w-xl">
             <p className="text-xs uppercase tracking-[0.22em] text-wine">Orders</p>
-            <h2 className="mt-3 font-display text-4xl leading-[1.02] tracking-tight text-ink sm:text-6xl">
+            <h2 className="page-title mt-2 text-ink">
               Your recent orders.
             </h2>
+            <p className="page-body text-ink/70">
+              Orders you placed recently, with status and total.
+            </p>
           </div>
           <Link
             href={routes.orders}
@@ -36,7 +39,7 @@ export function RecentOrders({ orders, ready }: { orders: OrderRecord[]; ready: 
                 >
                   <span className="flex flex-wrap items-start justify-between gap-3">
                     <span>
-                      <span className="block font-display text-2xl tracking-tight">{order.orderNumber}</span>
+                      <span className="block text-base font-medium leading-snug">{order.orderNumber}</span>
                       <span className="mt-1 block text-sm text-ink/55">
                         {formatOrderWhen(order.createdAt)}
                         {order.shippingAddress.city ? ` · ${order.shippingAddress.city}` : ""}

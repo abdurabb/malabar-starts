@@ -1,5 +1,5 @@
 import { ApiError } from "@/lib/apiError";
-import { clearToken, readToken } from "@/lib/authSession";
+import { clearToken, readToken, TOKEN_KEY } from "@/lib/authSession";
 import type { ApiErrorBody } from "@/types/apiError";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
@@ -12,13 +12,24 @@ const sessionEndingCodes = new Set([
   "ACCOUNT_BLOCKED",
 ]);
 
+async function resolveToken() {
+  if (typeof window !== "undefined") return readToken();
+  try {
+    const { cookies } = await import("next/headers");
+    const value = (await cookies()).get(TOKEN_KEY)?.value;
+    return value ? decodeURIComponent(value) : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers);
   if (init.body && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
   }
 
-  const token = readToken();
+  const token = await resolveToken();
   if (token && !headers.has("Authorization")) {
     headers.set("Authorization", `Bearer ${token}`);
   }

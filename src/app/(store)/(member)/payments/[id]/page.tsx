@@ -1,6 +1,9 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { PaymentDetailView } from "@/components/shop/payment-detail";
+import { ApiError, errorText } from "@/lib/apiError";
+import { getPayment } from "@/lib/payments";
+import type { PaymentRecord } from "@/types/payment";
 
 export const instant = false;
 
@@ -18,5 +21,12 @@ export default function PaymentPage({ params }: { params: Promise<{ id: string }
 
 async function PaymentRoute({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  return <PaymentDetailView id={id} />;
+  let payment: PaymentRecord | null = null;
+  let error = "";
+  try {
+    payment = await getPayment(id);
+  } catch (caught) {
+    error = caught instanceof ApiError && caught.status === 404 ? "Payment not found." : errorText(caught, "This payment could not be opened.");
+  }
+  return <PaymentDetailView id={id} initialPayment={payment} initialError={error} />;
 }

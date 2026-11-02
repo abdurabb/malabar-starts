@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState, type ReactNode } from "react";
+import { useServerSeed } from "@/hooks/useServerSeed";
 import { FilterSelect } from "@/components/shop/filter-controls";
 import { StatusBadge } from "@/components/shop/status-badge";
 import { useConfirm } from "@/components/ui/confirm-dialog";
@@ -13,13 +14,24 @@ import { isPaymentRecordStatus, paymentStatusChoices, statusLabel } from "@/type
 import type { PaymentRecord } from "@/types/payment";
 import type { PaymentRecordStatus } from "@/types/status";
 
-export function PaymentAdminDetail({ id }: { id: string }) {
+export function PaymentAdminDetail({
+  id,
+  initialPayment = null,
+  initialError = "",
+}: {
+  id: string;
+  initialPayment?: PaymentRecord | null;
+  initialError?: string;
+}) {
   const { confirm, dialog } = useConfirm();
-  const [payment, setPayment] = useState<PaymentRecord | null>(null);
+  const seeded = initialPayment !== null && !initialError;
+  const consumeSeed = useServerSeed(seeded);
+  const [payment, setPayment] = useState<PaymentRecord | null>(seeded ? initialPayment : null);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!seeded);
 
   useEffect(() => {
+    if (consumeSeed()) return;
     let active = true;
     setLoading(true);
     getPayment(id)
@@ -63,7 +75,7 @@ export function PaymentAdminDetail({ id }: { id: string }) {
         <div className="flex flex-wrap items-start justify-between gap-4 border-b border-dashed border-ink/15 p-6 sm:p-8">
           <div>
             <p className="text-xs uppercase tracking-[0.16em] text-wine">{payment.orderNumber ?? "Order"}</p>
-            <h2 className="mt-2 font-display text-5xl tracking-tight">{formatPaymentAmount(payment.amount, payment.currency)}</h2>
+            <h2 className="page-title mt-2">{formatPaymentAmount(payment.amount, payment.currency)}</h2>
             <p className="mt-3 text-sm text-ink/55">{formatOrderWhen(payment.createdAt)}</p>
           </div>
           <StatusBadge status={payment.status} kind="payment" />
@@ -163,7 +175,7 @@ function StatusEditor({
         void save();
       }}
     >
-      <h3 className="font-display text-3xl tracking-tight">Update status</h3>
+      <h3 className="page-title">Update status</h3>
       <p className="mt-2 text-sm leading-6 text-ink/60">
         Marking a payment paid also marks the order paid and sets the method to online.
       </p>

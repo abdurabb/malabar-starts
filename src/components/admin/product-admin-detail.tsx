@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useServerSeed } from "@/hooks/useServerSeed";
 import { ProductFormDialog } from "@/components/admin/product-form-dialog";
 import { ReviewsAdmin } from "@/components/admin/reviews-admin";
 import { useConfirm } from "@/components/ui/confirm-dialog";
@@ -18,23 +19,35 @@ function formatWhen(value: string) {
   return date.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
 }
 
-export function ProductAdminDetail({ id }: { id: string }) {
+export function ProductAdminDetail({
+  id,
+  initialProduct = null,
+  initialError = "",
+}: {
+  id: string;
+  initialProduct?: CatalogProduct | null;
+  initialError?: string;
+}) {
   const router = useRouter();
   const { confirm, dialog } = useConfirm();
-  const [product, setProduct] = useState<CatalogProduct | null>(null);
+  const seeded = initialProduct !== null && !initialError;
+  const consumeSeed = useServerSeed(seeded);
+  const [product, setProduct] = useState<CatalogProduct | null>(seeded ? initialProduct : null);
   const [image, setImage] = useState(0);
   const [error, setError] = useState("");
-  const [ready, setReady] = useState(false);
+  const [ready, setReady] = useState(seeded);
   const [editing, setEditing] = useState(false);
   const [version, setVersion] = useState(0);
 
   useEffect(() => {
+    if (consumeSeed()) return;
     setProduct(null);
     setReady(false);
     setImage(0);
   }, [id]);
 
   useEffect(() => {
+    if (consumeSeed()) return;
     let active = true;
     setError("");
     getProduct(id)
@@ -107,7 +120,7 @@ export function ProductAdminDetail({ id }: { id: string }) {
   if (!product) {
     return (
       <div>
-        <h2 className="font-display text-3xl tracking-tight">{error || "Product not found"}</h2>
+        <h2 className="page-title">{error || "Product not found"}</h2>
         <Link href="/admin/products" className="mt-4 inline-flex text-sm text-wine">
           Back to products
         </Link>
@@ -153,7 +166,7 @@ export function ProductAdminDetail({ id }: { id: string }) {
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="min-w-0">
               <p className="text-[0.65rem] uppercase tracking-[0.16em] text-wine">{product.category?.name ?? "Uncategorized"}</p>
-              <h2 className="mt-1 font-display text-3xl tracking-tight sm:text-4xl">{product.name}</h2>
+              <h2 className="page-title mt-1">{product.name}</h2>
               <p className="mt-1 text-sm text-ink/55">{product.brand?.name ?? "No brand"}</p>
             </div>
             <span

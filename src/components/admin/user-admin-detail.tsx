@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useServerSeed } from "@/hooks/useServerSeed";
 import { UserCart } from "@/components/admin/user-cart";
 import { UserFormDialog } from "@/components/admin/user-form-dialog";
 import { UserOrders } from "@/components/admin/user-orders";
@@ -32,25 +33,37 @@ function formatWhen(value: string) {
   return date.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
 }
 
-export function UserAdminDetail({ id }: { id: string }) {
+export function UserAdminDetail({
+  id,
+  initialUser = null,
+  initialError = "",
+}: {
+  id: string;
+  initialUser?: ManagedUser | null;
+  initialError?: string;
+}) {
   const router = useRouter();
   const { session } = useAuth();
   const { confirm, dialog } = useConfirm();
-  const [user, setUser] = useState<ManagedUser | null>(null);
+  const seeded = initialUser !== null && !initialError;
+  const consumeSeed = useServerSeed(seeded);
+  const [user, setUser] = useState<ManagedUser | null>(seeded ? initialUser : null);
   const [error, setError] = useState("");
-  const [ready, setReady] = useState(false);
+  const [ready, setReady] = useState(seeded);
   const [editing, setEditing] = useState(false);
   const [version, setVersion] = useState(0);
   const [activity, setActivity] = useState<Activity | null>(null);
   const self = Boolean(user && session?.user.id === user.id);
 
   useEffect(() => {
+    if (consumeSeed()) return;
     setUser(null);
     setReady(false);
     setActivity(null);
   }, [id]);
 
   useEffect(() => {
+    if (consumeSeed()) return;
     let active = true;
     setError("");
     getUser(id)
@@ -120,7 +133,7 @@ export function UserAdminDetail({ id }: { id: string }) {
   if (!user) {
     return (
       <div>
-        <h2 className="font-display text-3xl tracking-tight">{error || "User not found"}</h2>
+        <h2 className="page-title">{error || "User not found"}</h2>
         <Link href="/admin/customers" className="mt-4 inline-flex text-sm text-wine">
           Back to users
         </Link>
@@ -151,7 +164,7 @@ export function UserAdminDetail({ id }: { id: string }) {
             </span>
             <div className="min-w-0">
               <p className="text-[0.65rem] uppercase tracking-[0.16em] text-wine">{user.role === "admin" ? "Admin" : "Customer"}</p>
-              <h2 className="mt-1 font-display text-3xl tracking-tight sm:text-4xl">{user.name}</h2>
+              <h2 className="page-title mt-1">{user.name}</h2>
               <p className="mt-1 truncate text-sm text-ink/55">{user.email}</p>
             </div>
           </div>
@@ -196,7 +209,7 @@ export function UserAdminDetail({ id }: { id: string }) {
         </div>
       </div>
       <section className="mt-4 rounded-2xl border border-ink/10 bg-paper p-4 sm:p-5">
-        <h3 className="font-display text-2xl tracking-tight">Account activity</h3>
+        <h3 className="page-title">Account activity</h3>
         <div className="mt-4 flex flex-wrap gap-2">
           {activities.map((item) => {
             const selected = activity === item.id;

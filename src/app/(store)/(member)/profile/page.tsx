@@ -1,5 +1,8 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
+import { ScreenStatus } from "@/components/auth/screen-status";
 import { ProfileView } from "@/components/shop/profile-view";
+import { readCurrentUser } from "@/lib/currentUser";
 
 export const instant = false;
 
@@ -8,5 +11,14 @@ export const metadata: Metadata = {
 };
 
 export default function ProfilePage() {
-  return <ProfileView />;
+  return (
+    <Suspense fallback={<ScreenStatus label="Opening your profile…" />}>
+      <ProfilePageData />
+    </Suspense>
+  );
+}
+
+async function ProfilePageData() {
+  const user = await readCurrentUser();
+  return <ProfileView user={user} />;
 }

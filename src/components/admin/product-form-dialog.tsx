@@ -193,7 +193,7 @@ export function ProductFormDialog({
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs uppercase tracking-[0.16em] text-wine">{product ? "Update" : "New product"}</p>
-            <h2 id="product-form-title" className="mt-1 font-display text-4xl tracking-tight">
+            <h2 id="product-form-title" className="page-title mt-1">
               {product ? product.name : "Add a product"}
             </h2>
           </div>

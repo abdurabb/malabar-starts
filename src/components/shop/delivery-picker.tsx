@@ -104,7 +104,7 @@ export function DeliveryPicker({
                       ) : null}
                     </span>
                   </span>
-                  <span className="mt-3 block font-display text-2xl tracking-tight">{address.fullName}</span>
+                  <span className="mt-3 block text-base font-medium leading-snug">{address.fullName}</span>
                   {formatAddressLines(address).map((line, index) => (
                     <span key={`${address.id}-${index}`} className="mt-1 block text-sm text-ink/70">
                       {line}

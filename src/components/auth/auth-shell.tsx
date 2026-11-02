@@ -16,10 +16,10 @@ export function AuthShell({
         <aside className="hidden flex-col justify-between bg-[#f8ebe3] p-10 lg:flex">
           <Logo />
           <div>
-            <p className="font-display text-4xl leading-[1.05] tracking-tight text-ink">
+            <p className="page-title text-ink">
               The Sharjah counter, <span className="italic text-wine">online.</span>
             </p>
-            <p className="mt-4 max-w-xs text-sm leading-6 text-ink/70">
+            <p className="page-body text-ink/70">
               Fresh chicken, frozen poultry, beef, and food stuff. Customers return to the
               landing page. The desk opens for admin.
             </p>
@@ -30,8 +30,8 @@ export function AuthShell({
           <div className="mb-8 lg:hidden">
             <Logo />
           </div>
-          <h1 className="font-display text-4xl tracking-tight text-ink">{title}</h1>
-          <p className="mt-3 text-sm leading-6 text-ink/70">{subtitle}</p>
+          <h1 className="page-title text-ink">{title}</h1>
+          <p className="page-body text-ink/70">{subtitle}</p>
           <div className="mt-8">{children}</div>
         </div>
       </div>

@@ -92,7 +92,7 @@ export function OrderReviewAdmin({ order }: { order: OrderRecord }) {
 
   return (
     <section className="mt-8 rounded-[1.25rem] border border-ink/10 bg-paper p-4 sm:p-5">
-      <h2 className="font-display text-3xl tracking-tight">Review</h2>
+      <h2 className="page-title">Review</h2>
       {loading ? <p className="mt-4 text-sm text-ink/60">Looking for a review…</p> : null}
       {error ? <p className="mt-4 rounded-2xl bg-blush px-4 py-3 text-sm text-wine">{error}</p> : null}
       {!loading && !error && !review ? <p className="mt-4 text-sm text-ink/60">This order has no review yet.</p> : null}
@@ -102,7 +102,7 @@ export function OrderReviewAdmin({ order }: { order: OrderRecord }) {
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div>
-                <Link href={`/admin/products/${review.product.id}`} className="font-display text-2xl tracking-tight hover:text-wine">
+                <Link href={`/admin/products/${review.product.id}`} className="text-base font-medium leading-snug hover:text-wine">
                   {review.product.name ?? "Product"}
                 </Link>
                 <div className="mt-2 flex flex-wrap items-center gap-2">

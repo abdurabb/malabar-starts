@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useServerSeed } from "@/hooks/useServerSeed";
 import { CategoryFormDialog } from "@/components/admin/category-form-dialog";
 import { useConfirm } from "@/components/ui/confirm-dialog";
 import { ChoiceGroup, controlClass } from "@/components/shop/filter-controls";
@@ -12,10 +13,20 @@ import type { Category, CategoryStatus, Pagination } from "@/types/category";
 
 const limit = 12;
 
-export function CategoriesAdmin() {
+export function CategoriesAdmin({
+  initialCategories = [],
+  initialPagination = null,
+  initialError = "",
+}: {
+  initialCategories?: Category[];
+  initialPagination?: Pagination | null;
+  initialError?: string;
+}) {
   const { confirm, dialog } = useConfirm();
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [pagination, setPagination] = useState<Pagination | null>(null);
+  const seeded = initialPagination !== null && !initialError;
+  const consumeSeed = useServerSeed(seeded);
+  const [categories, setCategories] = useState<Category[]>(seeded ? initialCategories : []);
+  const [pagination, setPagination] = useState<Pagination | null>(seeded ? initialPagination : null);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [appliedSearch, setAppliedSearch] = useState("");
@@ -26,7 +37,7 @@ export function CategoriesAdmin() {
   const [editing, setEditing] = useState<Category | null>(null);
   const [open, setOpen] = useState(false);
   const [listError, setListError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!seeded);
   const [version, setVersion] = useState(0);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
@@ -37,6 +48,7 @@ export function CategoriesAdmin() {
   // }, [version]);
 
   useEffect(() => {
+    if (consumeSeed()) return;
     let active = true;
     setLoading(true);
     listCategories({
@@ -239,7 +251,7 @@ export function CategoriesAdmin() {
       {loading ? <p className="mt-6 text-sm text-ink/60">Loading categories…</p> : null}
       {!loading && !listError && categories.length === 0 ? (
         <div className="mt-6 rounded-[1.75rem] border border-dashed border-ink/15 bg-paper px-6 py-12 text-center">
-          <p className="font-display text-3xl">No categories in this view.</p>
+          <p className="text-base leading-7 text-ink/70">No categories in this view.</p>
           <button type="button" onClick={openCreate} className="mt-5 cursor-pointer text-sm text-wine">
             Add the first one
           </button>

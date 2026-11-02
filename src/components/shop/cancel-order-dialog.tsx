@@ -69,10 +69,10 @@ export function CancelOrderDialog({
         className="relative w-full max-w-md rounded-[1.75rem] bg-paper p-6 shadow-2xl sm:p-7"
       >
         <p className="text-xs uppercase tracking-[0.16em] text-wine">Cancel order</p>
-        <h2 id={titleId} className="mt-2 font-display text-3xl leading-none tracking-tight">
+        <h2 id={titleId} className="page-title mt-2">
           Cancel {orderNumber}?
         </h2>
-        <p className="mt-4 text-sm leading-6 text-ink/70">Tell us why. This note stays on the order.</p>
+        <p className="page-body text-ink/70">Tell us why. This note stays on the order.</p>
         <label className="mt-4 block text-sm text-ink/70">
           Reason
           <textarea

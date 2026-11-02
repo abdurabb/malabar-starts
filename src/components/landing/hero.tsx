@@ -13,12 +13,12 @@ export function Hero() {
           <p className="text-xs uppercase tracking-[0.22em] text-wine">
             Food supply · Sharjah
           </p>
-          <h1 className="mt-5 max-w-full pr-2 font-display text-[2.7rem] leading-[0.95] tracking-[-0.035em] text-ink sm:text-6xl lg:text-[5.15rem]">
+          <h1 className="page-title mt-2 max-w-full pr-2 text-ink">
             <span className="block">Fresh chicken.</span>
             <span className="block italic text-wine">Frozen poultry.</span>
             <span className="block">Beef from Sharjah.</span>
           </h1>
-          <p className="mt-7 max-w-xl text-lg leading-8 text-ink/75">
+          <p className="page-body text-ink/75">
             Malabar Starts Food Stuff keeps hotels, caterers, and home kitchens
             supplied. Whole birds, portions, beef, mutton, and the food stuff
             beside them — with the rate for today confirmed before you order.
@@ -56,11 +56,11 @@ export function Hero() {
         <div className="relative">
           <div className="relative overflow-hidden rounded-[2rem] border border-wine/15 bg-[#fff6ee] px-6 py-8 text-ink sm:px-8 sm:py-10">
             <p className="text-xs uppercase tracking-[0.2em] text-wine">Sharjah counter</p>
-            <p className="mt-6 max-w-xs font-display text-4xl leading-[1.05] tracking-tight sm:text-5xl">
+            <p className="page-title mt-3 max-w-xs">
               Held cold.
               <span className="block italic text-wine">Cut to order.</span>
             </p>
-            <p className="mt-5 max-w-sm text-sm leading-6 text-ink/70">
+            <p className="page-body text-ink/70">
               Chicken for the day, cartons for the week, and beef when the pot needs it.
             </p>
             <svg

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState, type ReactNode } from "react";
+import { useServerSeed } from "@/hooks/useServerSeed";
 import { DashboardChart } from "@/components/admin/dashboard-chart";
 import { ProductMedia } from "@/components/shop/product-card";
 import { StarRating } from "@/components/shop/star-rating";
@@ -36,13 +37,22 @@ const summaryCards: {
   { key: "newReviews", label: "New reviews", hint: "Written in this range", money: false },
 ];
 
-export function DashboardView() {
+export function DashboardView({
+  initialData = null,
+  initialError = "",
+}: {
+  initialData?: DashboardData | null;
+  initialError?: string;
+}) {
+  const seeded = initialData !== null && !initialError;
+  const consumeSeed = useServerSeed(seeded);
   const [range, setRange] = useState<DashboardRange>("30d");
-  const [data, setData] = useState<DashboardData | null>(null);
+  const [data, setData] = useState<DashboardData | null>(seeded ? initialData : null);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!seeded);
 
   useEffect(() => {
+    if (consumeSeed()) return;
     let active = true;
     setLoading(true);
     getDashboard(range)
@@ -304,7 +314,7 @@ function DashboardBody({ data }: { data: DashboardData }) {
         <Panel title="Reviews" action={<TextLink href="/admin/reviews">All reviews</TextLink>}>
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p className="font-display text-4xl tracking-tight">{data.reviews.averageRating === null ? "—" : data.reviews.averageRating.toFixed(1)}</p>
+              <p className="font-display text-2xl tracking-tight sm:text-3xl">{data.reviews.averageRating === null ? "—" : data.reviews.averageRating.toFixed(1)}</p>
               {data.reviews.averageRating !== null ? <StarRating rating={data.reviews.averageRating} /> : null}
             </div>
             <p className="text-sm text-ink/55">
@@ -442,7 +452,7 @@ function MetricCard({
   return (
     <article className="rounded-2xl border border-ink/10 bg-paper px-4 py-3.5">
       <p className="text-[0.65rem] uppercase tracking-[0.14em] text-wine">{label}</p>
-      <p className="mt-1.5 font-display text-3xl tracking-tight tabular-nums">{display}</p>
+      <p className="mt-1.5 font-display text-2xl tracking-tight tabular-nums">{display}</p>
       <p className="mt-1.5 text-xs text-ink/55">
         <span className={tone}>{formatChange(metric.change)}</span>
         <span> · {previous} before</span>
@@ -456,7 +466,7 @@ function Panel({ title, action, children }: { title: string; action?: ReactNode;
   return (
     <section className="rounded-[1.25rem] border border-ink/10 bg-paper p-4 sm:p-5">
       <div className="flex items-end justify-between gap-3">
-        <h2 className="font-display text-xl tracking-tight">{title}</h2>
+        <h2 className="page-title">{title}</h2>
         {action}
       </div>
       <div className="mt-4">{children}</div>

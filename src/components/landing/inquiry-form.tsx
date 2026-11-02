@@ -72,8 +72,8 @@ export function InquiryForm() {
     return (
       <div className="rounded-[1.5rem] bg-paper p-6 text-ink sm:p-8" role="status">
         <p className="text-xs uppercase tracking-[0.18em] text-wine">Message ready</p>
-        <h3 className="mt-3 font-display text-4xl leading-none tracking-tight">Thank you, {contact.name}.</h3>
-        <p className="mt-4 text-sm leading-6 text-ink/70">
+        <h3 className="page-title mt-2">Thank you, {contact.name}.</h3>
+        <p className="page-body text-ink/70">
           Copy this note and send it to the Sharjah counter. It includes {contact.phone}.
         </p>
         <pre className="mt-6 overflow-x-auto whitespace-pre-wrap rounded-2xl bg-ivory px-4 py-4 font-sans text-sm leading-6 text-ink">

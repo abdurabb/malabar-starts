@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Outfit } from "next/font/google";
 import { AppProviders } from "@/providers/AppProviders";
+import { siteDescription, siteName, siteOrigin } from "@/lib/site";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -20,12 +21,30 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteOrigin()),
   title: {
-    default: "Malabar Starts Food Stuff",
-    template: "%s · Malabar Starts Food Stuff",
+    default: siteName,
+    template: `%s · ${siteName}`,
   },
-  description:
-    "Fresh chicken, frozen poultry, beef, mutton, and food stuff supplied from Sharjah, United Arab Emirates.",
+  description: siteDescription,
+  applicationName: siteName,
+  openGraph: {
+    type: "website",
+    locale: "en_AE",
+    siteName,
+    title: siteName,
+    description: siteDescription,
+    url: "/",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteName,
+    description: siteDescription,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

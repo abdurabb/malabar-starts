@@ -56,7 +56,7 @@ export function ProductCard({ product, wishlistItemId }: { product: CatalogProdu
         <p className="mt-2 truncate text-[0.6rem] uppercase tracking-[0.12em] text-wine sm:mt-3 sm:text-[0.65rem]">
           {product.category?.name ?? "Uncategorized"}
         </p>
-        <h2 className="mt-1 line-clamp-2 font-display text-sm leading-tight tracking-tight hover:text-wine sm:text-xl">
+        <h2 className="mt-1 line-clamp-2 font-display text-sm font-medium leading-tight tracking-tight hover:text-wine sm:text-base">
           {product.name}
         </h2>
         <ProductRatingLine rating={product.rating} />

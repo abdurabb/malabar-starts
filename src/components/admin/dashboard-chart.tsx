@@ -53,7 +53,7 @@ export function DashboardChart({ chart, currency }: { chart: DashboardData["char
     <div>
       <div className="flex flex-wrap items-end justify-between gap-3">
         <p className="text-sm text-ink/60">
-          <span className="font-display text-3xl tracking-tight text-ink">{formatMoney(current.revenue, currency)}</span>
+          <span className="font-display text-2xl tracking-tight text-ink">{formatMoney(current.revenue, currency)}</span>
           <span className="ml-3">{formatChartLabel(current.date, chart.bucket)}</span>
         </p>
         <p className="text-sm text-ink/55">

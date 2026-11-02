@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useServerSeed } from "@/hooks/useServerSeed";
 import { CancelOrderDialog } from "@/components/shop/cancel-order-dialog";
 import { FilterLabel, FilterSelect, controlClass } from "@/components/shop/filter-controls";
 import { StatusBadge } from "@/components/shop/status-badge";
@@ -70,7 +71,15 @@ function isoBound(value: string, end: boolean) {
   return date.toISOString();
 }
 
-export function OrdersAdmin() {
+export function OrdersAdmin({
+  initialOrders = [],
+  initialPagination = null,
+  initialError = "",
+}: {
+  initialOrders?: OrderRecord[];
+  initialPagination?: Pagination | null;
+  initialError?: string;
+}) {
   const router = useRouter();
   const { confirm, dialog } = useConfirm();
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -89,16 +98,18 @@ export function OrdersAdmin() {
   const [status, setStatus] = useState<OrderStatus | "all">("all");
   const [sort, setSort] = useState<OrderSort>("newest");
   const [page, setPage] = useState(1);
-  const [orders, setOrders] = useState<OrderRecord[]>([]);
-  const [pagination, setPagination] = useState<Pagination | null>(null);
+  const seeded = initialPagination !== null && !initialError;
+  const consumeSeed = useServerSeed(seeded);
+  const [orders, setOrders] = useState<OrderRecord[]>(seeded ? initialOrders : []);
+  const [pagination, setPagination] = useState<Pagination | null>(seeded ? initialPagination : null);
   const [listError, setListError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!seeded);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [cancelTarget, setCancelTarget] = useState<OrderRecord | null>(null);
 
   useEffect(() => {
     const handle = window.setTimeout(() => {
-      setApplied({
+      const next = {
         search: search.trim(),
         city: city.trim(),
         state: state.trim(),
@@ -110,11 +121,14 @@ export function OrdersAdmin() {
         maxTotal: maxTotal.trim(),
         userId: userId.trim(),
         product: product.trim(),
-      });
+      };
+      const same = (Object.keys(next) as (keyof Applied)[]).every((key) => applied[key] === next[key]);
+      if (same) return;
+      setApplied(next);
       setPage(1);
     }, 350);
     return () => window.clearTimeout(handle);
-  }, [search, city, state, country, postalCode, from, to, minTotal, maxTotal, userId, product]);
+  }, [applied, search, city, state, country, postalCode, from, to, minTotal, maxTotal, userId, product]);
 
   useEffect(() => {
     const issue = filterIssue(applied);
@@ -123,6 +137,7 @@ export function OrdersAdmin() {
       setLoading(false);
       return;
     }
+    if (consumeSeed()) return;
     let active = true;
     setLoading(true);
     const min = money(applied.minTotal);
@@ -349,7 +364,7 @@ export function OrdersAdmin() {
       {listError ? <p className="mt-4 rounded-2xl bg-blush px-4 py-3 text-sm text-wine">{listError}</p> : null}
       {loading ? <p className="mt-6 text-sm text-ink/60">Loading orders…</p> : null}
       {!loading && !listError && orders.length === 0 ? (
-        <p className="mt-6 rounded-[1.5rem] border border-dashed border-ink/15 bg-paper px-6 py-12 text-center font-display text-3xl">
+        <p className="mt-6 rounded-[1.5rem] border border-dashed border-ink/15 bg-paper px-6 py-12 text-center text-base leading-7 text-ink/70">
           No orders in this view.
         </p>
       ) : null}
@@ -372,7 +387,7 @@ export function OrdersAdmin() {
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <p className="font-display text-2xl tracking-tight">{order.orderNumber}</p>
+                        <p className="text-base font-medium leading-snug">{order.orderNumber}</p>
                         <StatusBadge status={order.status} />
                       </div>
                       <p className="mt-2 text-sm text-ink/70">

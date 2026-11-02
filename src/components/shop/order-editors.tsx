@@ -142,7 +142,7 @@ export function OrderDeliveryEditor({
   return (
     <div className="mt-6">
       <div className="mb-3 flex items-center justify-between gap-3">
-        <h3 className="font-display text-2xl tracking-tight">Change delivery</h3>
+        <h3 className="page-title">Change delivery</h3>
         <button type="button" onClick={() => setOpen(false)} disabled={busy} className="text-sm text-ink/60">
           Close
         </button>
