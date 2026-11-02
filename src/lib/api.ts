@@ -2,7 +2,10 @@ import { ApiError } from "@/lib/apiError";
 import { clearToken, readToken, TOKEN_KEY } from "@/lib/authSession";
 import type { ApiErrorBody } from "@/types/apiError";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "/api/backend";
+// const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "/api/backend";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "/api/backend";
+
+// const API_BASE = "/api/backend";
 
 const sessionEndingCodes = new Set([
   "TOKEN_NOT_FOUND",
