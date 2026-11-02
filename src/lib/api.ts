@@ -77,17 +77,25 @@ async function getApiBase() {
     return API_BASE;
   }
 
-  const { headers } = await import("next/headers");
-  const requestHeaders = await headers();
+  try {
+    const { headers } = await import("next/headers");
+    const requestHeaders = await headers();
 
-  const host = requestHeaders.get("x-forwarded-host")
-    ?? requestHeaders.get("host");
+    const host =
+      requestHeaders.get("x-forwarded-host") ??
+      requestHeaders.get("host");
 
-  const protocol = requestHeaders.get("x-forwarded-proto") ?? "https";
+    const protocol =
+      requestHeaders.get("x-forwarded-proto") ?? "https";
 
-  if (!host) {
-    throw new Error("Unable to determine request host");
+    if (host) {
+      return `${protocol}://${host}${API_BASE}`;
+    }
+  } catch {
+    // Outside request scope, such as during static generation.
   }
 
-  return `${protocol}://${host}${API_BASE}`;
+  return process.env.NEXT_PUBLIC_SITE_URL
+    ? `${process.env.NEXT_PUBLIC_SITE_URL}${API_BASE}`
+    : API_BASE;
 }
