@@ -132,8 +132,9 @@ async function getApiBase() {
       requestHeaders.get("x-forwarded-host") ??
       requestHeaders.get("host");
 
-    const protocol =
-      requestHeaders.get("x-forwarded-proto") ?? "https";
+    const forwarded = requestHeaders.get("x-forwarded-proto");
+    const local = Boolean(host?.startsWith("localhost") || host?.startsWith("127.0.0.1"));
+    const protocol = forwarded ?? (local ? "http" : "https");
 
     if (host) {
       return `${protocol}://${host}${API_BASE}`;

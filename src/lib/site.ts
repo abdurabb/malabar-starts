@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { apiOrigin } from "@/lib/apiOrigin";
 
 export const siteName = "Malabar Starts Food Stuff";
 
@@ -22,7 +23,7 @@ export function absoluteAsset(src: string | null | undefined) {
   if (!src) return null;
   if (src.startsWith("https://") || src.startsWith("http://")) return src;
   if (src.startsWith("//")) return `https:${src}`;
-  const api = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000").replace(/\/$/, "");
+  const api = apiOrigin();
   return `${api}${src.startsWith("/") ? src : `/${src}`}`;
 }
 

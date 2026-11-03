@@ -1,5 +1,6 @@
 import { cacheLife } from "next/cache";
 import type { MetadataRoute } from "next";
+import { apiOrigin } from "@/lib/apiOrigin";
 import { siteOrigin } from "@/lib/site";
 
 type Listed = {
@@ -16,7 +17,7 @@ type ListedPage = {
 };
 
 async function listAll(path: string, key: "products" | "categories" | "brands") {
-  const base = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000").replace(/\/$/, "");
+  const base = apiOrigin();
   const items: Listed[] = [];
   let page = 1;
   let totalPages = 1;
